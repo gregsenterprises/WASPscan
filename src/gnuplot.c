@@ -99,7 +99,8 @@ int gnuplot_create_script(char * plot_script_filename,
 	return 0;
 }
 
-int gnuplot_save_data(float series[], int series_length,
+int gnuplot_save_data(float timestamp[], float series[],
+					  int series_length,
 					  char * plot_data_filename)
 {
 	int i;
@@ -108,7 +109,7 @@ int gnuplot_save_data(float series[], int series_length,
 	fp = fopen(plot_data_filename,"w");
 	if (!fp) return -1;
 	for (i = 0; i < series_length; i++) {
-        fprintf(fp,"%.8f %.8f\n", (float)i, series[i]);
+        fprintf(fp,"%.8f %.8f\n", timestamp[i], series[i]);
 	}
 	fclose(fp);
 	return 0;
@@ -135,7 +136,32 @@ void gnuplot_get_range(float series[], int series_length,
 	}
 }
 
+static float gnuplot_get_mean(float series[], int series_length)
+{
+	int i;
+	double mean = 0;
+
+	for (i = 0; i < series_length; i++) {
+		mean += series[i];
+	}
+	mean /= series_length;
+	return (float)mean;
+}
+
+static float gnuplot_get_variance(float series[], int series_length, float mean)
+{
+	int i;
+	double variance = 0;
+
+	for (i = 0; i < series_length; i++) {
+		variance += (series[i] - mean)*(series[i] - mean);
+	}
+	variance /= series_length;
+	return (float)sqrt(variance);
+}
+
 int gnuplot_distribution(char * title,
+						 float timestamp[],
 						 float series[], int series_length,
 						 char * image_filename,
 						 int image_width, int image_height,
@@ -144,33 +170,41 @@ int gnuplot_distribution(char * title,
 						 char * axis_label)
 {
     char * subtitle = "";
+	float mean, variance;
     float range_min=0;
     float range_max=0;
+    float time_min=0;
+    float time_max=0;
 	char commandstr[256];
 
-	if (gnuplot_save_data(series, series_length,
+	if (gnuplot_save_data(timestamp, series, series_length,
 						  (char*)plot_data_filename) != 0) {
 		return -1;
 	}
 
-    gnuplot_get_range(series, series_length,
-					  &range_min, &range_max);
-	if (range_max == range_min) {
+    gnuplot_get_range(timestamp, series_length,
+					  &time_min, &time_max);
+	if (time_max == time_min) {
 		return -2;
 	}
+
+	mean = gnuplot_get_mean(series, series_length);
+	variance = gnuplot_get_variance(series, series_length, mean);
+	range_min = mean - variance;
+	range_max = mean + variance;
 
     if (gnuplot_create_script((char*)plot_script_filename,
 							  (char*)plot_data_filename,
 							  title, subtitle,
 							  subtitle_indent_horizontal,
 							  subtitle_indent_vertical,
-							  0, series_length,
+							  time_min, time_max,
 							  range_min, range_max,
 							  "Time", axis_label,
 							  image_filename,
 							  image_width, image_height,
 							  "Flux", 2, 0, 1, 0) != 0) {
-		return -3;
+		return -4;
 	}
 
 	sprintf(commandstr,"gnuplot %s", plot_script_filename);

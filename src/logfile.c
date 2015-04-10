@@ -18,14 +18,16 @@
 */
 
 /* field index */
-#define TAMFLUX2 3
+#define TIMESTAMP 0
+#define TAMFLUX2  3
 
 #include "waspscan.h"
 
-int logfile_load(char * filename, float * series, int max_series_length)
+int logfile_load(char * filename, float timestamp[],
+				 float series[], int max_series_length)
 {
 	FILE * fp;
-	char linestr[512],valuestr[512];
+	char linestr[512], valuestr[512];
 	char * retval = NULL;
 	int i,ctr=0,field_index;
 	int series_length=0;
@@ -50,6 +52,9 @@ int logfile_load(char * filename, float * series, int max_series_length)
 				else {
 					if (ctr > 0) {
 						valuestr[ctr]=0;
+						if (field_index == TIMESTAMP) {
+							timestamp[series_length] = atof(valuestr);
+						}
 						if (field_index == TAMFLUX2) {
 							series[series_length++] = atof(valuestr);
 							if (series_length >= max_series_length) {

@@ -23,13 +23,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define VERSION 0.01
 
 #define MAX_SERIES_LENGTH 640000
 
-int logfile_load(char * filename, float * series, int max_series_length);
+int logfile_load(char * filename, float timestamp[],
+				 float series[], int max_series_length);
 int gnuplot_distribution(char * title,
+						 float timestamp[],
 						 float series[], int series_length,
 						 char * image_filename,
 						 int image_width, int image_height,

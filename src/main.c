@@ -29,6 +29,7 @@ void show_help()
 int main(int argc, char* argv[])
 {
     int i, series_length;
+	float timestamp[MAX_SERIES_LENGTH];
 	float series[MAX_SERIES_LENGTH];
 	char log_filename[256];
 
@@ -69,11 +70,14 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	series_length = logfile_load(log_filename, series, MAX_SERIES_LENGTH);
+	series_length = logfile_load(log_filename,
+								 timestamp,
+								 series,
+								 MAX_SERIES_LENGTH);
 	printf("%d values loaded\n", series_length);
 
 	gnuplot_distribution("SuperWASP",
-						 series, series_length,
+						 timestamp, series, series_length,
 						 "result.png",
 						 1024, 640,
 						 0,0,
