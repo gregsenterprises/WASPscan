@@ -18,6 +18,8 @@
 
 #include "waspscan.h"
 
+#define LIGHT_CURVE_LENGTH 256
+
 char * plot_script_filename = "/tmp/SuperWASP.plot";
 char * plot_data_filename = "/tmp/SuperWASP.dat";
 
@@ -190,8 +192,8 @@ int gnuplot_distribution(char * title,
 
     mean = gnuplot_get_mean(series, series_length);
     variance = gnuplot_get_variance(series, series_length, mean);
-    range_min = mean - variance;
-    range_max = mean + variance;
+    range_min = mean - variance*4;
+    range_max = mean + variance*4;
 
     if (gnuplot_create_script((char*)plot_script_filename,
                               (char*)plot_data_filename,
@@ -204,6 +206,128 @@ int gnuplot_distribution(char * title,
                               image_filename,
                               image_width, image_height,
                               "Flux", 2, 0, 1, 0) != 0) {
+        return -4;
+    }
+
+    sprintf(commandstr,"gnuplot %s", plot_script_filename);
+    return system(commandstr);
+}
+
+int gnuplot_light_curve(char * title,
+                        float timestamp[],
+                        float series[], int series_length,
+                        char * image_filename,
+                        int image_width, int image_height,
+                        float subtitle_indent_horizontal,
+                        float subtitle_indent_vertical,
+                        char * axis_label,
+                        float period_days)
+{
+    char * subtitle = "";
+    float mean, variance;
+    float range_min=0;
+    float range_max=0;
+    float time_min=0;
+    float time_max=0;
+    char commandstr[LIGHT_CURVE_LENGTH];
+    float curve[LIGHT_CURVE_LENGTH];
+    float phase[LIGHT_CURVE_LENGTH];
+    int i;
+
+    for (i = 0; i < LIGHT_CURVE_LENGTH; i++) {
+        phase[i] = (i*360.0f/LIGHT_CURVE_LENGTH)-180.0f;
+    }
+
+    light_curve(timestamp, series, series_length,
+                period_days, curve, LIGHT_CURVE_LENGTH);
+
+    if (gnuplot_save_data(phase, curve, LIGHT_CURVE_LENGTH,
+                          (char*)plot_data_filename) != 0) {
+        return -1;
+    }
+
+    gnuplot_get_range(timestamp, series_length,
+                      &time_min, &time_max);
+    if (time_max == time_min) {
+        return -2;
+    }
+
+    mean = gnuplot_get_mean(series, series_length);
+    variance = gnuplot_get_variance(series, series_length, mean);
+    range_min = mean - variance*4;
+    range_max = mean + variance*4;
+
+    if (gnuplot_create_script((char*)plot_script_filename,
+                              (char*)plot_data_filename,
+                              title, subtitle,
+                              subtitle_indent_horizontal,
+                              subtitle_indent_vertical,
+                              -180, 180,
+                              range_min, range_max,
+                              "Phase", axis_label,
+                              image_filename,
+                              image_width, image_height,
+                              "Magnitude", 2, 0, 0, 0) != 0) {
+        return -4;
+    }
+
+    sprintf(commandstr,"gnuplot %s", plot_script_filename);
+    return system(commandstr);
+}
+
+int gnuplot_light_curve_distribution(char * title,
+									 float timestamp[],
+									 float series[], int series_length,
+									 char * image_filename,
+									 int image_width, int image_height,
+									 float subtitle_indent_horizontal,
+									 float subtitle_indent_vertical,
+									 char * axis_label,
+									 float period_days)
+{
+    char * subtitle = "";
+    float mean, variance;
+    float range_min=0;
+    float range_max=0;
+    float time_min=0;
+    float time_max=0;
+    char commandstr[256];
+	float timestamp_curve[MAX_SERIES_LENGTH];
+    int i;
+
+	for (i = 0; i < series_length; i++) {
+		timestamp_curve[i] =
+			(fmod(timestamp[i]/(60*60*24),period_days) * 360 /
+			 period_days) - 180.0f;
+	}
+
+    if (gnuplot_save_data(timestamp_curve, series, series_length,
+                          (char*)plot_data_filename) != 0) {
+        return -1;
+    }
+
+    gnuplot_get_range(timestamp, series_length,
+                      &time_min, &time_max);
+    if (time_max == time_min) {
+        return -2;
+    }
+
+    mean = gnuplot_get_mean(series, series_length);
+    variance = gnuplot_get_variance(series, series_length, mean);
+    range_min = mean - variance*4;
+    range_max = mean + variance*4;
+
+    if (gnuplot_create_script((char*)plot_script_filename,
+                              (char*)plot_data_filename,
+                              title, subtitle,
+                              subtitle_indent_horizontal,
+                              subtitle_indent_vertical,
+                              -180, 180,
+                              range_min, range_max,
+                              "Phase", axis_label,
+                              image_filename,
+                              image_width, image_height,
+                              "Magnitude", 2, 0, 1, 0) != 0) {
         return -4;
     }
 

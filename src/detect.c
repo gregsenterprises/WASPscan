@@ -44,8 +44,7 @@ int detect_endpoints(float timestamp[], int series_length,
         dt_variance += variance*variance;
     }
     dt_variance = (float)sqrt(dt_variance/(series_length-1));
-    printf("dt_mean = %f\n",mean_dt);
-    printf("dt_variance = %f\n",dt_variance);
+    printf("dt_mean = %f (hours)\n",mean_dt/(60*60));
     threshold = dt_variance*10;
 
     for (i = 1; i < series_length-1; i++) {
@@ -59,4 +58,41 @@ int detect_endpoints(float timestamp[], int series_length,
     }
     endpoints[ctr*2] = -1;
     return ctr;
+}
+
+/**
+ * @brief Returns an array containing a light curve for the given orbital period_days
+ * @param timestamp Array of imaging times
+ * @param series Array containing magnitudes
+ * @param series_length The length of the data series
+ * @param period_days The expected orbital period
+ * @param curve Returned light curve Array
+ * @param curve_length The number of buckets within the curve
+ */
+void light_curve(float timestamp[],
+                 float series[], int series_length,
+                 float period_days,
+                 float curve[], int curve_length)
+{
+    int i, index;
+    float days;
+    int curve_hits[curve_length];
+
+    for (i = 0; i < curve_length; i++) {
+        curve[i] = 0;
+        curve_hits[i] = 0;
+    }
+
+    for (i = 0; i < series_length; i++) {
+        days = timestamp[i] / (60*60*24);
+        index = fmod(days,period_days) * (curve_length-1) / period_days;
+        curve[index] += series[i];
+        curve_hits[index]++;
+    }
+
+    for (i = 0; i < curve_length; i++) {
+        if (curve_hits[i] > 0) {
+            curve[i] /= curve_hits[i];
+        }
+    }
 }

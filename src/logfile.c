@@ -18,8 +18,17 @@
 */
 
 /* field index */
-#define TIMESTAMP 0
-#define TAMFLUX2  3
+#define TMID         0  /* Mid-time of exposure (sec) */
+#define FLUX2        1  /* Processed flux (micro Vega) */
+#define FLUX2_ERR    2  /* Processed flux error (micro Vega) */
+#define TAMFLUX2     3	/* TAMUZ corrected processed flux (micro Vega) */
+#define TAMFLUX2_ERR 4  /* TAMUZ flux error (micro Vega) */
+#define IMAGEID      5  /* Unique image ID */
+#define CCDX         6  /* X position on the CCD (1/16th of pixel) */
+#define CCDY         7  /* Y position on the CCD (1/16th of pixel) */
+#define FLAG         8  /* Bitmask */
+#define HJD          9  /* Date */
+#define MAG2         10
 
 #include "waspscan.h"
 
@@ -52,7 +61,7 @@ int logfile_load(char * filename, float timestamp[],
                 else {
                     if (ctr > 0) {
                         valuestr[ctr]=0;
-                        if (field_index == TIMESTAMP) {
+                        if (field_index == TMID) {
                             timestamp[series_length] = atof(valuestr);
                         }
                         if (field_index == TAMFLUX2) {

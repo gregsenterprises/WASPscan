@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
     int endpoints[MAX_SERIES_LENGTH];
     int no_of_sections;
     char log_filename[256];
+    float orbital_period_days;
 
     /* if no options given then show help */
     if (argc <= 1) {
@@ -90,7 +91,17 @@ int main(int argc, char* argv[])
                          "result.png",
                          1024, 640,
                          0,0,
-                         "Flux");
+                         "TAMUZ corrected processed flux (micro Vega)");
+
+    orbital_period_days = 1.3382282f;
+
+    gnuplot_light_curve_distribution("SuperWASP Light Curve",
+                                     timestamp, series, series_length,
+                                     "result_light_curve.png",
+                                     1024, 640,
+                                     0,0,
+                                     "TAMUZ corrected processed flux (micro Vega)",
+                                     orbital_period_days);
 
     return 0;
 }
