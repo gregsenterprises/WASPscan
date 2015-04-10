@@ -26,37 +26,37 @@ typedef double complex cplx;
 
 void _fft(cplx buf[], cplx out[], int n, int step)
 {
-	if (step < n) {
-		_fft(out, buf, n, step * 2);
-		_fft(out + step, buf + step, n, step * 2);
+    if (step < n) {
+        _fft(out, buf, n, step * 2);
+        _fft(out + step, buf + step, n, step * 2);
 
-		for (int i = 0; i < n; i += 2 * step) {
-			cplx t = cexp(-I * PI_LOCAL * i / n) * out[i + step];
-			buf[i / 2]     = out[i] + t;
-			buf[(i + n)/2] = out[i] - t;
-		}
-	}
+        for (int i = 0; i < n; i += 2 * step) {
+            cplx t = cexp(-I * PI_LOCAL * i / n) * out[i + step];
+            buf[i / 2]     = out[i] + t;
+            buf[(i + n)/2] = out[i] - t;
+        }
+    }
 }
 
 void fft(cplx buf[], int n)
 {
-	cplx out[n];
-	for (int i = 0; i < n; i++) out[i] = buf[i];
+    cplx out[n];
+    for (int i = 0; i < n; i++) out[i] = buf[i];
 
-	_fft(buf, out, n, 1);
+    _fft(buf, out, n, 1);
 }
 
 void fft1D(float series[], int series_length, float freq[])
 {
-	int i;
-	cplx buf[series_length];
+    int i;
+    cplx buf[series_length];
 
-	for (i = 0; i < series_length; i++) {
-		buf[i] = series[i] + 0.0f*_Complex_I;
-	}
-	PI_LOCAL = atan2(1, 1) * 4;
-	fft(buf,series_length);
-	for (i = 0; i < series_length; i++) {
-		freq[i] = creal(buf[i]);
-	}
+    for (i = 0; i < series_length; i++) {
+        buf[i] = series[i] + 0.0f*_Complex_I;
+    }
+    PI_LOCAL = atan2(1, 1) * 4;
+    fft(buf,series_length);
+    for (i = 0; i < series_length; i++) {
+        freq[i] = creal(buf[i]);
+    }
 }

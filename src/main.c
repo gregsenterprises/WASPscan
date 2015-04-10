@@ -29,24 +29,26 @@ void show_help()
 int main(int argc, char* argv[])
 {
     int i, series_length;
-	float timestamp[MAX_SERIES_LENGTH];
-	float series[MAX_SERIES_LENGTH];
-	char log_filename[256];
+    float timestamp[MAX_SERIES_LENGTH];
+    float series[MAX_SERIES_LENGTH];
+    int endpoints[MAX_SERIES_LENGTH];
+    int no_of_sections;
+    char log_filename[256];
 
-	/* if no options given then show help */
-	if (argc <= 1) {
-		show_help();
-		return 1;
-	}
+    /* if no options given then show help */
+    if (argc <= 1) {
+        show_help();
+        return 1;
+    }
 
-	/* no filename specified */
+    /* no filename specified */
     log_filename[0]=0;
 
     /* parse the options */
     for (i = 1; i < argc; i++) {
         /* log filename */
         if ((strcmp(argv[i],"-f")==0) ||
-			(strcmp(argv[i],"--filename")==0)) {
+            (strcmp(argv[i],"--filename")==0)) {
             i++;
             if (i < argc) {
                 sprintf(log_filename,"%s",argv[i]);
@@ -66,22 +68,29 @@ int main(int argc, char* argv[])
     }
 
     if (log_filename[0]==0) {
-		printf("No log file specified\n");
-		return -1;
-	}
+        printf("No log file specified\n");
+        return -1;
+    }
 
-	series_length = logfile_load(log_filename,
-								 timestamp,
-								 series,
-								 MAX_SERIES_LENGTH);
-	printf("%d values loaded\n", series_length);
+    series_length = logfile_load(log_filename,
+                                 timestamp,
+                                 series,
+                                 MAX_SERIES_LENGTH);
+    printf("%d values loaded\n", series_length);
 
-	gnuplot_distribution("SuperWASP",
-						 timestamp, series, series_length,
-						 "result.png",
-						 1024, 640,
-						 0,0,
-						 "Flux");
+    no_of_sections = detect_endpoints(timestamp, series_length,
+                                      endpoints);
+    if (no_of_sections == 0) {
+        printf("No sections detected in the time series\n");
+        return 5672;
+    }
+
+    gnuplot_distribution("SuperWASP",
+                         timestamp, series, endpoints[1],
+                         "result.png",
+                         1024, 640,
+                         0,0,
+                         "Flux");
 
     return 0;
 }

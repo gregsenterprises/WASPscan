@@ -24,53 +24,53 @@
 #include "waspscan.h"
 
 int logfile_load(char * filename, float timestamp[],
-				 float series[], int max_series_length)
+                 float series[], int max_series_length)
 {
-	FILE * fp;
-	char linestr[512], valuestr[512];
-	char * retval = NULL;
-	int i,ctr=0,field_index;
-	int series_length=0;
+    FILE * fp;
+    char linestr[512], valuestr[512];
+    char * retval = NULL;
+    int i,ctr=0,field_index;
+    int series_length=0;
 
-	fp = fopen(filename,"r");
-	if (!fp) return -1;
+    fp = fopen(filename,"r");
+    if (!fp) return -1;
 
-	while (!feof(fp)) {
-		retval = fgets(linestr,511,fp);
-		if (retval != NULL) {
-			if (strlen(linestr) < 1) continue;
-			if ((linestr[0]=='\\') ||
-				(linestr[0]=='|')) {
-				continue;
-			}
-			field_index = 0;
-			ctr=0;
-			for (i = 0; i < strlen(linestr); i++) {
-				if (!((linestr[i]==' ') || (linestr[i]=='\t'))) {
-					valuestr[ctr++] = linestr[i];
-				}
-				else {
-					if (ctr > 0) {
-						valuestr[ctr]=0;
-						if (field_index == TIMESTAMP) {
-							timestamp[series_length] = atof(valuestr);
-						}
-						if (field_index == TAMFLUX2) {
-							series[series_length++] = atof(valuestr);
-							if (series_length >= max_series_length) {
-								fclose(fp);
-								return(series_length);
-							}
-							break;
-						}
-						ctr = 0;
-						field_index++;
-					}
-				}
-			}
-		}
-	}
+    while (!feof(fp)) {
+        retval = fgets(linestr,511,fp);
+        if (retval != NULL) {
+            if (strlen(linestr) < 1) continue;
+            if ((linestr[0]=='\\') ||
+                (linestr[0]=='|')) {
+                continue;
+            }
+            field_index = 0;
+            ctr=0;
+            for (i = 0; i < strlen(linestr); i++) {
+                if (!((linestr[i]==' ') || (linestr[i]=='\t'))) {
+                    valuestr[ctr++] = linestr[i];
+                }
+                else {
+                    if (ctr > 0) {
+                        valuestr[ctr]=0;
+                        if (field_index == TIMESTAMP) {
+                            timestamp[series_length] = atof(valuestr);
+                        }
+                        if (field_index == TAMFLUX2) {
+                            series[series_length++] = atof(valuestr);
+                            if (series_length >= max_series_length) {
+                                fclose(fp);
+                                return(series_length);
+                            }
+                            break;
+                        }
+                        ctr = 0;
+                        field_index++;
+                    }
+                }
+            }
+        }
+    }
 
-	fclose(fp);
-	return series_length;
+    fclose(fp);
+    return series_length;
 }

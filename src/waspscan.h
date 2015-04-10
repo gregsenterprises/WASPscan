@@ -31,15 +31,17 @@
 #define MAX_SERIES_LENGTH 640000
 
 int logfile_load(char * filename, float timestamp[],
-				 float series[], int max_series_length);
+                 float series[], int max_series_length);
 int gnuplot_distribution(char * title,
-						 float timestamp[],
-						 float series[], int series_length,
-						 char * image_filename,
-						 int image_width, int image_height,
-						 float subtitle_indent_horizontal,
-						 float subtitle_indent_vertical,
-						 char * axis_label);
+                         float timestamp[],
+                         float series[], int series_length,
+                         char * image_filename,
+                         int image_width, int image_height,
+                         float subtitle_indent_horizontal,
+                         float subtitle_indent_vertical,
+                         char * axis_label);
 void fft1D(float series[], int series_length, float freq[]);
+int detect_endpoints(float timestamp[], int series_length,
+                     int endpoints[]);
 
 #endif
