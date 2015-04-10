@@ -72,9 +72,12 @@ int main(int argc, char* argv[])
 	series_length = logfile_load(log_filename, series, MAX_SERIES_LENGTH);
 	printf("%d values loaded\n", series_length);
 
-	for (i = 0; i < 10; i++) {
-		printf("%.4f\n",series[i]);
-	}
+	gnuplot_distribution("SuperWASP",
+						 series, series_length,
+						 "result.png",
+						 1024, 640,
+						 0,0,
+						 "Flux");
 
     return 0;
 }

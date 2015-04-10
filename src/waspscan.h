@@ -29,5 +29,12 @@
 #define MAX_SERIES_LENGTH 640000
 
 int logfile_load(char * filename, float * series, int max_series_length);
+int gnuplot_distribution(char * title,
+						 float series[], int series_length,
+						 char * image_filename,
+						 int image_width, int image_height,
+						 float subtitle_indent_horizontal,
+						 float subtitle_indent_vertical,
+						 char * axis_label);
 
 #endif
