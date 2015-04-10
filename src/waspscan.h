@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <complex.h>
 
 #define VERSION 0.01
 
@@ -39,5 +40,6 @@ int gnuplot_distribution(char * title,
 						 float subtitle_indent_horizontal,
 						 float subtitle_indent_vertical,
 						 char * axis_label);
+void fft1D(float series[], int series_length, float freq[]);
 
 #endif
