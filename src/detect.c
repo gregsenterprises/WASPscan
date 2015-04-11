@@ -60,6 +60,11 @@ int detect_endpoints(float timestamp[], int series_length,
     return ctr;
 }
 
+/**
+ * @brief Calculates the amount of variance for a light curve
+ * @param period_days Orbital period in days
+ * @param timestamp
+ */
 static float light_curve_variance(float period_days,
                                   float timestamp[],
                                   float series[],
@@ -165,6 +170,12 @@ static void light_curve_resample(float min_value, float max_value,
     }
 }
 
+/**
+ * @brief Returns the average value for all data points
+ * @param series Array containing the data points
+ * @param series_length Length of the array
+ * @returns Average value
+ */
 float detect_mean(float series[], int series_length)
 {
     int i;
@@ -173,10 +184,16 @@ float detect_mean(float series[], int series_length)
     for (i = 0; i < series_length; i++) {
         mean += series[i];
     }
-    mean /= series_length;
-    return (float)mean;
+    return (float)(mean/series_length);
 }
 
+/**
+ * @brief Returns the variance for all data points in a series
+ * @param series Array containing data points
+ * @param series_length Length of the Array
+ * @param mean Pre-calculated mean value
+ * @returns Variance value
+ */
 float detect_variance(float series[], int series_length, float mean)
 {
     int i;
@@ -185,8 +202,7 @@ float detect_variance(float series[], int series_length, float mean)
     for (i = 0; i < series_length; i++) {
         variance += (series[i] - mean)*(series[i] - mean);
     }
-    variance /= series_length;
-    return (float)sqrt(variance);
+    return (float)sqrt(variance/series_length);
 }
 
 /**
@@ -217,6 +233,18 @@ void light_curve(float timestamp[],
                          period_days, curve, curve_length);
 }
 
+/**
+ * @brief Attempts to detect the orbital period via the transit method
+ *        This tries man possible periods and looks for a dip in
+ *        magnitude
+ * @param timestamp Times for observations
+ * @param series Magnitude observations
+ * @param series_length Length of the Array
+ * @param min_period_days The minimum orbital period in days
+ * @param max_period_days The maximum orbital period in days
+ * @param increment_days The time increment used within the min/max range
+ * @returns The best candidate orbital period
+ */
 float detect_orbital_period(float timestamp[],
                             float series[], int series_length,
                             float min_period_days,

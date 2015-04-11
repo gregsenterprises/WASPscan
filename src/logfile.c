@@ -32,6 +32,15 @@
 
 #include "waspscan.h"
 
+/**
+ * @brief Loads a WASP log file containing times and magnitudes
+ *        for a given star
+ * @param filename Log filename
+ * @param timestamp Returned array containing the time of each data point
+ * @param series Returned array containing magnitudes
+ * @param max_series_length The maximum number of data points to be returned
+ * @returns The number of data points loaded
+ */
 int logfile_load(char * filename, float timestamp[],
                  float series[], int max_series_length)
 {

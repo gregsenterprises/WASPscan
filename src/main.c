@@ -131,6 +131,7 @@ int main(int argc, char* argv[])
                               maximum_period_days,
                               SEARCH_INCREMENT_DAYS);
     if (orbital_period_days == 0) {
+        printf("No transits detected\n");
         return -5;
     }
 

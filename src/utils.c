@@ -21,6 +21,11 @@
 
 #include "waspscan.h"
 
+/**
+ * @brief Turns a filename into a name usable as a title
+ * @param filename The filename
+ * @param result The returned scan name
+ */
 void scan_name(char * filename, char * result)
 {
     int start_index, ctr=0, i;
