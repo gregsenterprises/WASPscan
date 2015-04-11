@@ -253,8 +253,8 @@ float detect_orbital_period(float timestamp[],
     float period_days=0;
     float max_response = 0;
     const int expected_width = 256*2/100;
-    const int max_dipped = 256*5/100;
-    const int max_nondipped = 256*5/100;
+    const int max_dipped = 256*9/100;
+    const int max_nondipped = 256*9/100;
     int step = 0;
     int steps = (int)((max_period_days - min_period_days)/increment_days);
     float response[MAX_SEARCH_STEPS];
