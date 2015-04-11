@@ -137,6 +137,8 @@ int main(int argc, char* argv[])
 
     printf("orbital_period_days %.6f\n",orbital_period_days);
 
+	orbital_period_days = 2.5199464f;
+
     sprintf(title,"SuperWASP Light Curve for %s",name);
     gnuplot_light_curve_distribution(title,
                                      timestamp, series, series_length,

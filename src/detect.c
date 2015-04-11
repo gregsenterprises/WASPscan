@@ -250,16 +250,12 @@ float detect_orbital_period(float timestamp[],
                             float max_period_days,
                             float increment_days)
 {
-    int i,j,k,l,hits;
-    float orbital_period_days, mean, variance;
-	float v, threshold_upper;
-    float mean_density, density_variance, threshold_dipped;
     float period_days=0;
-    float minimum = 0, max_response = 0;
+    float max_response = 0;
     const int expected_width = 256*2/100;
     const int max_dipped = 256*5/100;
     const int max_nondipped = 256*3/100;
-    int step = 0, dipped, nondipped;
+    int step = 0;
     int steps = (int)((max_period_days - min_period_days)/increment_days);
     float response[MAX_SEARCH_STEPS];
 
@@ -270,22 +266,22 @@ float detect_orbital_period(float timestamp[],
 
 #pragma omp parallel for
     for (step = 0; step < steps; step++) {
-	    float curve[256], density[256];
-
-        orbital_period_days = min_period_days + (step*increment_days);
+        float curve[256], density[256];
+        float orbital_period_days = min_period_days + (step*increment_days);
 
         light_curve(timestamp, series, series_length,
                     orbital_period_days,
                     curve, density, 256);
-        variance = light_curve_variance(orbital_period_days,
-                                        timestamp, series,
-                                        series_length,
-                                        curve, 256);
+        float variance =
+            light_curve_variance(orbital_period_days,
+                                 timestamp, series,
+                                 series_length,
+                                 curve, 256);
 
         /* calculate the mean */
-        mean = 0;
-        hits = 0;
-        for (j = 0; j < 256; j++) {
+        float mean = 0;
+        int hits = 0;
+        for (int j = 0; j < 256; j++) {
             if (curve[j]>0) {
                 mean += curve[j];
                 hits++;
@@ -299,9 +295,9 @@ float detect_orbital_period(float timestamp[],
         mean /= hits;
 
         /* average density of samples */
-        mean_density = 0;
+        float mean_density = 0;
         hits = 0;
-        for (j = 0; j < 256; j++) {
+        for (int j = 0; j < 256; j++) {
             if (density[j] > 0) {
                 mean_density += density[j];
                 hits++;
@@ -310,9 +306,9 @@ float detect_orbital_period(float timestamp[],
         mean_density /= hits;
 
         /* variation in the density of samples */
-        density_variance = 0;
+        float density_variance = 0;
         hits = 0;
-        for (j = 0; j < 256; j++) {
+        for (int j = 0; j < 256; j++) {
             if (density[j] > 0) {
                 density_variance +=
                     (density[j] - mean_density)*
@@ -324,12 +320,12 @@ float detect_orbital_period(float timestamp[],
             (float)(density_variance/hits);
 
         /* find the minimum */
-        minimum = 0;
-        for (j = 0; j < 256; j++) {
-            v = 0;
+        float minimum = 0;
+        for (int j = 0; j < 256; j++) {
+            float v = 0;
             hits = 0;
-            for (k = j-expected_width; k <= j+expected_width; k++) {
-                l = k;
+            for (int k = j-expected_width; k <= j+expected_width; k++) {
+                int l = k;
                 if (l < 0) l += 256;
                 if (l >= 256) l -= 256;
                 if (curve[l] > 0) {
@@ -350,9 +346,9 @@ float detect_orbital_period(float timestamp[],
         }
 
         /* How much difference from the mean? */
-        dipped = 0;
-        threshold_dipped = minimum + ((mean-minimum)*0.2);
-        for (j = 0; j < 256; j++) {
+        int dipped = 0;
+        float threshold_dipped = minimum + ((mean-minimum)*0.2);
+        for (int j = 0; j < 256; j++) {
             if (curve[j] < threshold_dipped) dipped++;
         }
         /* we only expect a small percentage
@@ -366,9 +362,9 @@ float detect_orbital_period(float timestamp[],
         }
 
         /* How much difference from the mean? */
-        nondipped = 0;
-        threshold_upper = mean - ((mean-minimum)*0.2);
-        for (j = 0; j < 256; j++) {
+        int nondipped = 0;
+        float threshold_upper = mean - ((mean-minimum)*0.2);
+        for (int j = 0; j < 256; j++) {
             if ((curve[j] < threshold_upper) &&
                 (curve[j] > threshold_dipped)) {
                 nondipped++;
@@ -381,7 +377,7 @@ float detect_orbital_period(float timestamp[],
 
         variance = 0;
         hits = 0;
-        for (j = 0; j < 256; j++) {
+        for (int j = 0; j < 256; j++) {
             if (curve[j] > 0) {
                 variance += (curve[j] - mean)*(curve[j] - mean);
                 hits++;
@@ -395,12 +391,12 @@ float detect_orbital_period(float timestamp[],
             response[step] =
                 (mean-minimum)*dipped*100/(mean*(1+nondipped));
             response[step] /= (density_variance*variance);
-            /*
+
             if (dipped > 0) {
                 printf("days %.6f dipped %d nondipped %d\n",
                        orbital_period_days, dipped, nondipped);
             }
-            */
+
             /*
             printf("days %.6f den %.4f response %.4f\n",
                    orbital_period_days,
@@ -410,7 +406,7 @@ float detect_orbital_period(float timestamp[],
         }
     }
 
-    for (i = 0; i < steps; i++) {
+    for (int i = 0; i < steps; i++) {
         if (response[i] > max_response) {
             max_response = response[i];
             period_days = min_period_days + (i*increment_days);
