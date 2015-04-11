@@ -307,8 +307,8 @@ int gnuplot_light_curve_distribution(char * title,
 
     mean = detect_mean(series, series_length);
     variance = detect_variance(series, series_length, mean);
-    range_min = mean - variance*2;
-    range_max = mean + variance*2;
+    range_min = mean - variance*3;
+    range_max = mean + variance*3;
 
     if (gnuplot_create_script((char*)plot_script_filename,
                               (char*)plot_data_filename,
