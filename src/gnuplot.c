@@ -138,30 +138,6 @@ void gnuplot_get_range(float series[], int series_length,
     }
 }
 
-static float gnuplot_get_mean(float series[], int series_length)
-{
-    int i;
-    double mean = 0;
-
-    for (i = 0; i < series_length; i++) {
-        mean += series[i];
-    }
-    mean /= series_length;
-    return (float)mean;
-}
-
-static float gnuplot_get_variance(float series[], int series_length, float mean)
-{
-    int i;
-    double variance = 0;
-
-    for (i = 0; i < series_length; i++) {
-        variance += (series[i] - mean)*(series[i] - mean);
-    }
-    variance /= series_length;
-    return (float)sqrt(variance);
-}
-
 int gnuplot_distribution(char * title,
                          float timestamp[],
                          float series[], int series_length,
@@ -171,13 +147,15 @@ int gnuplot_distribution(char * title,
                          float subtitle_indent_vertical,
                          char * axis_label)
 {
-    char * subtitle = "";
+    char subtitle[256];
     float mean, variance;
     float range_min=0;
     float range_max=0;
     float time_min=0;
     float time_max=0;
     char commandstr[256];
+
+    sprintf(subtitle,"%s","");
 
     if (gnuplot_save_data(timestamp, series, series_length,
                           (char*)plot_data_filename) != 0) {
@@ -190,8 +168,8 @@ int gnuplot_distribution(char * title,
         return -2;
     }
 
-    mean = gnuplot_get_mean(series, series_length);
-    variance = gnuplot_get_variance(series, series_length, mean);
+    mean = detect_mean(series, series_length);
+    variance = detect_variance(series, series_length, mean);
     range_min = mean - variance*4;
     range_max = mean + variance*4;
 
@@ -223,7 +201,7 @@ int gnuplot_light_curve(char * title,
                         char * axis_label,
                         float period_days)
 {
-    char * subtitle = "";
+    char subtitle[256];
     float mean, variance;
     float range_min=0;
     float range_max=0;
@@ -231,15 +209,18 @@ int gnuplot_light_curve(char * title,
     float time_max=0;
     char commandstr[LIGHT_CURVE_LENGTH];
     float curve[LIGHT_CURVE_LENGTH];
+    float density[LIGHT_CURVE_LENGTH];
     float phase[LIGHT_CURVE_LENGTH];
     int i;
+
+    sprintf(subtitle,"Orbital Period %.5f days",period_days);
 
     for (i = 0; i < LIGHT_CURVE_LENGTH; i++) {
         phase[i] = (i*360.0f/LIGHT_CURVE_LENGTH)-180.0f;
     }
 
     light_curve(timestamp, series, series_length,
-                period_days, curve, LIGHT_CURVE_LENGTH);
+                period_days, curve, density, LIGHT_CURVE_LENGTH);
 
     if (gnuplot_save_data(phase, curve, LIGHT_CURVE_LENGTH,
                           (char*)plot_data_filename) != 0) {
@@ -252,8 +233,8 @@ int gnuplot_light_curve(char * title,
         return -2;
     }
 
-    mean = gnuplot_get_mean(series, series_length);
-    variance = gnuplot_get_variance(series, series_length, mean);
+    mean = detect_mean(series, series_length);
+    variance = detect_variance(series, series_length, mean);
     range_min = mean - variance*4;
     range_max = mean + variance*4;
 
@@ -276,30 +257,32 @@ int gnuplot_light_curve(char * title,
 }
 
 int gnuplot_light_curve_distribution(char * title,
-									 float timestamp[],
-									 float series[], int series_length,
-									 char * image_filename,
-									 int image_width, int image_height,
-									 float subtitle_indent_horizontal,
-									 float subtitle_indent_vertical,
-									 char * axis_label,
-									 float period_days)
+                                     float timestamp[],
+                                     float series[], int series_length,
+                                     char * image_filename,
+                                     int image_width, int image_height,
+                                     float subtitle_indent_horizontal,
+                                     float subtitle_indent_vertical,
+                                     char * axis_label,
+                                     float period_days)
 {
-    char * subtitle = "";
+    char subtitle[256];
     float mean, variance;
     float range_min=0;
     float range_max=0;
     float time_min=0;
     float time_max=0;
     char commandstr[256];
-	float timestamp_curve[MAX_SERIES_LENGTH];
+    float timestamp_curve[MAX_SERIES_LENGTH];
     int i;
 
-	for (i = 0; i < series_length; i++) {
-		timestamp_curve[i] =
-			(fmod(timestamp[i]/(60*60*24),period_days) * 360 /
-			 period_days) - 180.0f;
-	}
+    sprintf(subtitle,"Orbital Period %.5f days",period_days);
+
+    for (i = 0; i < series_length; i++) {
+        timestamp_curve[i] =
+            (fmod(timestamp[i]/(60*60*24),period_days) * 360 /
+             period_days) - 180.0f;
+    }
 
     if (gnuplot_save_data(timestamp_curve, series, series_length,
                           (char*)plot_data_filename) != 0) {
@@ -312,8 +295,8 @@ int gnuplot_light_curve_distribution(char * title,
         return -2;
     }
 
-    mean = gnuplot_get_mean(series, series_length);
-    variance = gnuplot_get_variance(series, series_length, mean);
+    mean = detect_mean(series, series_length);
+    variance = detect_variance(series, series_length, mean);
     range_min = mean - variance*4;
     range_max = mean + variance*4;
 

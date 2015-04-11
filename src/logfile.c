@@ -21,7 +21,7 @@
 #define TMID         0  /* Mid-time of exposure (sec) */
 #define FLUX2        1  /* Processed flux (micro Vega) */
 #define FLUX2_ERR    2  /* Processed flux error (micro Vega) */
-#define TAMFLUX2     3	/* TAMUZ corrected processed flux (micro Vega) */
+#define TAMFLUX2     3  /* TAMUZ corrected processed flux (micro Vega) */
 #define TAMFLUX2_ERR 4  /* TAMUZ flux error (micro Vega) */
 #define IMAGEID      5  /* Unique image ID */
 #define CCDX         6  /* X position on the CCD (1/16th of pixel) */

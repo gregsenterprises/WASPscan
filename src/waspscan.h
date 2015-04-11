@@ -28,8 +28,13 @@
 
 #define VERSION 0.01
 
+#define SEARCH_INCREMENT_DAYS 0.00001
+#define MAX_SEARCH_STEPS      1000000
+
 #define MAX_SERIES_LENGTH 100000
 
+float detect_mean(float series[], int series_length);
+float detect_variance(float series[], int series_length, float mean);
 int logfile_load(char * filename, float timestamp[],
                  float series[], int max_series_length);
 int gnuplot_distribution(char * title,
@@ -41,29 +46,35 @@ int gnuplot_distribution(char * title,
                          float subtitle_indent_vertical,
                          char * axis_label);
 int gnuplot_light_curve(char * title,
-						float timestamp[],
-						float series[], int series_length,
-						char * image_filename,
-						int image_width, int image_height,
-						float subtitle_indent_horizontal,
-						float subtitle_indent_vertical,
-						char * axis_label,
-						float period_days);
+                        float timestamp[],
+                        float series[], int series_length,
+                        char * image_filename,
+                        int image_width, int image_height,
+                        float subtitle_indent_horizontal,
+                        float subtitle_indent_vertical,
+                        char * axis_label,
+                        float period_days);
 int gnuplot_light_curve_distribution(char * title,
-									 float timestamp[],
-									 float series[], int series_length,
-									 char * image_filename,
-									 int image_width, int image_height,
-									 float subtitle_indent_horizontal,
-									 float subtitle_indent_vertical,
-									 char * axis_label,
-									 float period_days);
+                                     float timestamp[],
+                                     float series[], int series_length,
+                                     char * image_filename,
+                                     int image_width, int image_height,
+                                     float subtitle_indent_horizontal,
+                                     float subtitle_indent_vertical,
+                                     char * axis_label,
+                                     float period_days);
 void fft1D(float series[], int series_length, float freq[]);
 int detect_endpoints(float timestamp[], int series_length,
                      int endpoints[]);
 void light_curve(float timestamp[],
                  float series[], int series_length,
                  float period_days,
-                 float curve[], int curve_length);
+                 float curve[], float density[], int curve_length);
+void scan_name(char * filename, char * result);
+float detect_orbital_period(float timestamp[],
+                            float series[], int series_length,
+                            float min_period_days,
+                            float max_period_days,
+                            float increment_days);
 
 #endif

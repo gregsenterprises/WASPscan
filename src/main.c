@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
     int endpoints[MAX_SERIES_LENGTH];
     int no_of_sections;
     char log_filename[256];
+    char name[256], title[256];
     float orbital_period_days;
 
     /* if no options given then show help */
@@ -73,6 +74,10 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    /* get the name of the scan from the log filename */
+    scan_name(log_filename, name);
+
+    /* read the data */
     series_length = logfile_load(log_filename,
                                  timestamp,
                                  series,
@@ -94,14 +99,30 @@ int main(int argc, char* argv[])
                          "TAMUZ corrected processed flux (micro Vega)");
 
     orbital_period_days = 1.3382282f;
+    sprintf(title,"SuperWASP Light Curve for %s",name);
 
-    gnuplot_light_curve_distribution("SuperWASP Light Curve",
+    orbital_period_days =
+        detect_orbital_period(timestamp,
+                              series, series_length,
+                              1.31,1.4,SEARCH_INCREMENT_DAYS);
+    if (orbital_period_days == 0) {
+        return 5647;
+    }
+    printf("orbital_period_days %.5f\n",orbital_period_days);
+    gnuplot_light_curve_distribution(title,
                                      timestamp, series, series_length,
                                      "result_light_curve.png",
                                      1024, 640,
-                                     0,0,
+                                     0.44,0.93,
                                      "TAMUZ corrected processed flux (micro Vega)",
                                      orbital_period_days);
+    gnuplot_light_curve(title,
+                        timestamp, series, series_length,
+                        "result_light_curve_simple.png",
+                        1024, 640,
+                        0.44,0.93,
+                        "TAMUZ corrected processed flux (micro Vega)",
+                        orbital_period_days);
 
     return 0;
 }
