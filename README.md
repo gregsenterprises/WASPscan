@@ -59,3 +59,11 @@ If you already know that a log file contains a transit, and you know the orbital
 ```
 waspscan -f data/1SWASP_xyz.tbl -p [days]
 ```
+
+If you want to scan multiple log files within a directory there's also a helper script for that purpose:
+
+```
+waspscandir [minimum period] [maximum period]
+```
+
+Log files will be scanned one by one and if transits are found then plot images will be generated for them within the same directory for subsequent manual review.
