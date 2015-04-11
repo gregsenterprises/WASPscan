@@ -27,6 +27,7 @@ void show_help()
     printf(" -0  --min                   Minimum orbital period in days\n");
     printf(" -1  --max                   Maximum orbital period in days\n");
     printf(" -h  --help                  Show help\n");
+    printf(" -v  --version               Show version number\n");
 }
 
 int main(int argc, char* argv[])
@@ -94,8 +95,9 @@ int main(int argc, char* argv[])
             show_help();
             return 0;
         }
+        /* show version number */
         if ((strcmp(argv[i],"-v")==0) ||
-                (strcmp(argv[i],"--version")==0)) {
+            (strcmp(argv[i],"--version")==0)) {
             printf("Version %.2f\n",VERSION);
             return 0;
         }

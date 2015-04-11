@@ -26,7 +26,7 @@
 #include <math.h>
 #include <complex.h>
 
-#define VERSION 0.01
+#define VERSION 1.00
 
 #define SEARCH_INCREMENT_DAYS 0.00001
 #define MAX_SEARCH_STEPS      1000000
