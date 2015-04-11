@@ -2,7 +2,7 @@ WASPscan
 ========
 <img src="https://github.com/bashrc/WASPscan/blob/master/images/J233415.png?raw=true" width=640/>
 
-This utility takes log files produced by SuperWASP and searches for exoplanet transits within them, producing plots if any are found. A range of orbital periods can be specified in days within which the search will take place, of if the period is known it can be specified.
+This utility takes log files produced by SuperWASP and searches for exoplanet transits within them, producing plots if any are found. A range of orbital periods can be specified in days within which the search will take place, or if the period is known it can be specified.
 
 For more information see:
 
