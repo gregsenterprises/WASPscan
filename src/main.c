@@ -42,6 +42,8 @@ int main(int argc, char* argv[])
     float minimum_period_days = 0;
     float maximum_period_days = 0;
     float known_period_days = 0;
+    char light_curve_filename[256];
+    char light_curve_distribution_filename[256];
 
     /* if no options given then show help */
     if (argc <= 1) {
@@ -153,19 +155,19 @@ int main(int argc, char* argv[])
         orbital_period_days = known_period_days;
     }
 
-    /*orbital_period_days = 0.94145299;*/
-
+    sprintf(light_curve_filename,"WASP_%s.png",name);
+    sprintf(light_curve_distribution_filename,"WASP_distr_%s.png",name);
     sprintf(title,"SuperWASP Light Curve for %s",name);
     gnuplot_light_curve_distribution(title,
                                      timestamp, series, series_length,
-                                     "result_light_curve.png",
+                                     light_curve_distribution_filename,
                                      1024, 640,
                                      0.44,0.93,
                                      "TAMUZ corrected processed flux (micro Vega)",
                                      orbital_period_days);
     gnuplot_light_curve(title,
                         timestamp, series, series_length,
-                        "result_light_curve_simple.png",
+                        light_curve_filename,
                         1024, 640,
                         0.44,0.93,
                         "TAMUZ corrected processed flux (micro Vega)",
