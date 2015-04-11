@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
                                       endpoints);
     if (no_of_sections == 0) {
         printf("No sections detected in the time series\n");
-        return -4;
+        return 1;
     }
 
     /*orbital_period_days = 1.3382282f;*/
