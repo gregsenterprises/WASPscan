@@ -211,7 +211,7 @@ int gnuplot_light_curve(char * title,
     float curve[LIGHT_CURVE_LENGTH];
     float density[LIGHT_CURVE_LENGTH];
     float phase[LIGHT_CURVE_LENGTH];
-    int i;
+    int i, offset;
 
     sprintf(subtitle,"Orbital Period %.5f days",period_days);
 
@@ -221,6 +221,9 @@ int gnuplot_light_curve(char * title,
 
     light_curve(timestamp, series, series_length,
                 period_days, curve, density, LIGHT_CURVE_LENGTH);
+
+    offset = detect_phase_offset(curve, LIGHT_CURVE_LENGTH);
+    adjust_curve(curve, LIGHT_CURVE_LENGTH, offset);
 
     if (gnuplot_save_data(phase, curve, LIGHT_CURVE_LENGTH,
                           (char*)plot_data_filename) != 0) {
@@ -267,20 +270,27 @@ int gnuplot_light_curve_distribution(char * title,
                                      float period_days)
 {
     char subtitle[256];
-    float mean, variance;
+    float mean, variance, adjust;
     float range_min=0;
     float range_max=0;
     float time_min=0;
     float time_max=0;
     char commandstr[256];
     float timestamp_curve[MAX_SERIES_LENGTH];
-    int i;
+    int i, offset;
+    float curve[LIGHT_CURVE_LENGTH];
+    float density[LIGHT_CURVE_LENGTH];
 
     sprintf(subtitle,"Orbital Period %.5f days",period_days);
 
+    light_curve(timestamp, series, series_length,
+                period_days, curve, density, LIGHT_CURVE_LENGTH);
+    offset = detect_phase_offset(curve, LIGHT_CURVE_LENGTH);
+    adjust = (period_days/2) - (offset*period_days/LIGHT_CURVE_LENGTH);
+
     for (i = 0; i < series_length; i++) {
         timestamp_curve[i] =
-            (fmod(timestamp[i]/(60*60*24),period_days) * 360 /
+            (fmod((timestamp[i]/(60*60*24))+adjust,period_days) * 360 /
              period_days) - 180.0f;
     }
 

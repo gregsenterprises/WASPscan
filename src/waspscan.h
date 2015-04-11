@@ -76,5 +76,7 @@ float detect_orbital_period(float timestamp[],
                             float min_period_days,
                             float max_period_days,
                             float increment_days);
+int detect_phase_offset(float curve[], int curve_length);
+void adjust_curve(float curve[], int curve_length, int offset);
 
 #endif

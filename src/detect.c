@@ -233,6 +233,57 @@ void light_curve(float timestamp[],
 }
 
 /**
+ * @brief Detects the array index of the centre of the transit
+ * @param curve Array containing light curve magnitudes
+ * @param curve_length Length of the array
+ * @returns Array index of the centre of the transit
+ */
+int detect_phase_offset(float curve[], int curve_length)
+{
+    int i, j, l, offset = 0;
+    float minimum = 0, v;
+    int search_radius = curve_length*5/100;
+
+    for (i = 0; i < curve_length; i++) {
+        v = 0;
+        for (j = i-search_radius; j <= i+search_radius; j++) {
+            l = j;
+            if (l < 0) l += curve_length;
+            if (l >= curve_length) l -= curve_length;
+            v += curve[l];
+        }
+        if ((v < minimum) || (minimum == 0)) {
+            minimum = v;
+            offset = i;
+        }
+    }
+    return offset;
+}
+
+/**
+ * @brief Adjust the light curve so that the transit is at the centre
+ * @param curve Array containing light curve magnitudes
+ * @param curve_length Length of the array
+ * @param offset Array index of the centre of the transit
+ */
+void adjust_curve(float curve[], int curve_length, int offset)
+{
+    int i, index;
+    int adjust = (curve_length/2) - offset;
+    float new_curve[512];
+
+    for (i = 0; i < curve_length; i++) {
+        index = i + adjust;
+        if (index < 0) index += curve_length;
+        if (index >= curve_length) index -= curve_length;
+        new_curve[index] = curve[i];
+    }
+    for (i = 0; i < curve_length; i++) {
+        curve[i] = new_curve[i];
+    }
+}
+
+/**
  * @brief Attempts to detect the orbital period via the transit method
  *        This tries man possible periods and looks for a dip in
  *        magnitude
