@@ -233,10 +233,10 @@ int gnuplot_light_curve(char * title,
         return -2;
     }
 
-    mean = detect_mean(series, series_length);
-    variance = detect_variance(series, series_length, mean);
-    range_min = mean - variance*4;
-    range_max = mean + variance*4;
+    mean = detect_mean(curve, LIGHT_CURVE_LENGTH);
+    variance = detect_variance(curve, LIGHT_CURVE_LENGTH, mean);
+    range_min = mean - (variance*8);
+    range_max = mean + (variance*8);
 
     if (gnuplot_create_script((char*)plot_script_filename,
                               (char*)plot_data_filename,
