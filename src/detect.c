@@ -44,7 +44,6 @@ int detect_endpoints(float timestamp[], int series_length,
         dt_variance += variance*variance;
     }
     dt_variance = (float)sqrt(dt_variance/(series_length-1));
-    printf("dt_mean = %f (hours)\n",mean_dt/(60*60));
     threshold = dt_variance*10;
 
     for (i = 1; i < series_length-1; i++) {
@@ -253,12 +252,14 @@ float detect_orbital_period(float timestamp[],
 {
     int i,j,k,l,hits;
     float orbital_period_days, mean, variance;
-    float curve[256],density[256],v;
-    float mean_density, density_variance;
+    float curve[256], density[256], v, threshold_upper;
+    float mean_density, density_variance, threshold_dipped;
     float period_days=0;
     float minimum = 0, max_response = 0;
     const int expected_width = 256*2/100;
-    int step = 0;
+    const int max_dipped = 256*5/100;
+    const int max_nondipped = 256*3/100;
+    int step = 0, dipped, nondipped;
     int steps = (int)((max_period_days - min_period_days)/increment_days);
     float response[MAX_SEARCH_STEPS];
 
@@ -267,9 +268,9 @@ float detect_orbital_period(float timestamp[],
         return 0;
     }
 
-    for (orbital_period_days = min_period_days;
-         orbital_period_days <= max_period_days;
-         orbital_period_days += increment_days, step++) {
+    for (step = 0; step < steps; step++) {
+
+        orbital_period_days = min_period_days + (step*increment_days);
 
         light_curve(timestamp, series, series_length,
                     orbital_period_days,
@@ -346,6 +347,36 @@ float detect_orbital_period(float timestamp[],
             }
         }
 
+        /* How much difference from the mean? */
+        dipped = 0;
+        threshold_dipped = minimum + ((mean-minimum)*0.2);
+        for (j = 0; j < 256; j++) {
+            if (curve[j] < threshold_dipped) dipped++;
+        }
+        /* we only expect a small percentage
+           of the curve to be dipped */
+        if (dipped > max_dipped) {
+            dipped = 0;
+        }
+        if (dipped == 0) {
+            response[step] = 0;
+            continue;
+        }
+
+        /* How much difference from the mean? */
+        nondipped = 0;
+        threshold_upper = mean - ((mean-minimum)*0.2);
+        for (j = 0; j < 256; j++) {
+            if ((curve[j] < threshold_upper) &&
+                (curve[j] > threshold_dipped)) {
+                nondipped++;
+            }
+        }
+        if (nondipped > max_nondipped) {
+            response[step] = 0;
+            continue;
+        }
+
         variance = 0;
         hits = 0;
         for (j = 0; j < 256; j++) {
@@ -359,8 +390,15 @@ float detect_orbital_period(float timestamp[],
             response[step] =
                 (mean-minimum) /
                 (float)sqrt(variance/hits);
-            response[step] = (mean-minimum)*100/mean;
-            /*response[step] /= (density_variance*variance);*/
+            response[step] =
+                (mean-minimum)*dipped*100/(mean*(1+nondipped));
+            response[step] /= (density_variance*variance);
+            /*
+            if (dipped > 0) {
+                printf("days %.6f dipped %d nondipped %d\n",
+                       orbital_period_days, dipped, nondipped);
+            }
+            */
             /*
             printf("days %.6f den %.4f response %.4f\n",
                    orbital_period_days,
@@ -373,9 +411,7 @@ float detect_orbital_period(float timestamp[],
     for (i = 0; i < steps; i++) {
         if (response[i] > max_response) {
             max_response = response[i];
-            period_days = min_period_days +
-                (i * (max_period_days-min_period_days) /
-                 steps);
+            period_days = min_period_days + (i*increment_days);
         }
     }
     return period_days;
