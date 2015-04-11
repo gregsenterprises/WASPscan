@@ -21,12 +21,12 @@ MAX_PERIOD_DAYS=4.0
 
 if [ $1 ]; then
     MIN_PERIOD_DAYS=$1
-	echo "Minimum orbital period $MIN_PERIOD_DAYS days"
+    echo "Minimum orbital period $MIN_PERIOD_DAYS days"
 fi
 
 if [ $2 ]; then
     MAX_PERIOD_DAYS=$2
-	echo "Maximum orbital period $MAX_PERIOD_DAYS days"
+    echo "Maximum orbital period $MAX_PERIOD_DAYS days"
 fi
 
 for f in $LOG_FILES
