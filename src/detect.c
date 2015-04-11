@@ -252,7 +252,7 @@ float detect_orbital_period(float timestamp[],
 {
     int i,j,k,l,hits;
     float orbital_period_days, mean, variance;
-    float curve[256], density[256], v, threshold_upper;
+	float v, threshold_upper;
     float mean_density, density_variance, threshold_dipped;
     float period_days=0;
     float minimum = 0, max_response = 0;
@@ -268,7 +268,9 @@ float detect_orbital_period(float timestamp[],
         return 0;
     }
 
+#pragma omp parallel for
     for (step = 0; step < steps; step++) {
+	    float curve[256], density[256];
 
         orbital_period_days = min_period_days + (step*increment_days);
 
