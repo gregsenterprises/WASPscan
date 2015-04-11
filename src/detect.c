@@ -391,12 +391,12 @@ float detect_orbital_period(float timestamp[],
             response[step] =
                 (mean-minimum)*dipped*100/(mean*(1+nondipped));
             response[step] /= (density_variance*variance);
-
+            /*
             if (dipped > 0) {
                 printf("days %.6f dipped %d nondipped %d\n",
                        orbital_period_days, dipped, nondipped);
             }
-
+            */
             /*
             printf("days %.6f den %.4f response %.4f\n",
                    orbital_period_days,

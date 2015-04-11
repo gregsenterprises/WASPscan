@@ -23,6 +23,7 @@ void show_help()
 {
     printf("WASPscan: Detection of exoplanet transits\n\n");
     printf(" -f  --filename              Log filename\n");
+    printf(" -p  --period                Known orbital period in days\n");
     printf(" -0  --min                   Minimum orbital period in days\n");
     printf(" -1  --max                   Maximum orbital period in days\n");
     printf(" -h  --help                  Show help\n");
@@ -40,6 +41,7 @@ int main(int argc, char* argv[])
     float orbital_period_days;
     float minimum_period_days = 0;
     float maximum_period_days = 0;
+    float known_period_days = 0;
 
     /* if no options given then show help */
     if (argc <= 1) {
@@ -76,6 +78,14 @@ int main(int argc, char* argv[])
                 maximum_period_days = atof(argv[i]);
             }
         }
+        /* Known orbital period */
+        if ((strcmp(argv[i],"-p")==0) ||
+            (strcmp(argv[i],"--period")==0)) {
+            i++;
+            if (i < argc) {
+                known_period_days = atof(argv[i]);
+            }
+        }
         /* show help */
         if ((strcmp(argv[i],"-h")==0) ||
                 (strcmp(argv[i],"--help")==0)) {
@@ -94,15 +104,17 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    if (maximum_period_days == 0) {
-        printf("No maximum orbital period specified\n");
-        return -2;
-    }
+    if (known_period_days == 0) {
+        if (maximum_period_days == 0) {
+            printf("No maximum orbital period specified\n");
+            return -2;
+        }
 
-    if (maximum_period_days <= minimum_period_days) {
-        printf("Maximum orbital period must be greater ");
-        printf("than the minimum orbital period\n");
-        return -3;
+        if (maximum_period_days <= minimum_period_days) {
+            printf("Maximum orbital period must be greater ");
+            printf("than the minimum orbital period\n");
+            return -3;
+        }
     }
 
     /* get the name of the scan from the log filename */
@@ -124,20 +136,24 @@ int main(int argc, char* argv[])
 
     /*orbital_period_days = 1.3382282f;*/
 
-    orbital_period_days =
-        detect_orbital_period(timestamp,
-                              series, series_length,
-                              minimum_period_days,
-                              maximum_period_days,
-                              SEARCH_INCREMENT_DAYS);
-    if (orbital_period_days == 0) {
-        printf("No transits detected\n");
-        return -5;
+    if (known_period_days == 0) {
+        orbital_period_days =
+            detect_orbital_period(timestamp,
+                                  series, series_length,
+                                  minimum_period_days,
+                                  maximum_period_days,
+                                  SEARCH_INCREMENT_DAYS);
+        if (orbital_period_days == 0) {
+            printf("No transits detected\n");
+            return -5;
+        }
+        printf("orbital_period_days %.6f\n",orbital_period_days);
+    }
+    else {
+        orbital_period_days = known_period_days;
     }
 
-    printf("orbital_period_days %.6f\n",orbital_period_days);
-
-    /*orbital_period_days = 2.5199464f;*/
+    /*orbital_period_days = 0.94145299;*/
 
     sprintf(title,"SuperWASP Light Curve for %s",name);
     gnuplot_light_curve_distribution(title,
