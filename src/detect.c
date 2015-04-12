@@ -298,7 +298,7 @@ void adjust_curve(float curve[], int curve_length, int offset)
  * @param min_period_days The minimum orbital period in days
  * @param max_period_days The maximum orbital period in days
  * @param increment_days The time increment used within the min/max range
- * @returns The best candidate orbital period
+ * @returns The best candidate orbital period, or zero if no transit found
  */
 float detect_orbital_period(float timestamp[],
                             float series[], int series_length,
