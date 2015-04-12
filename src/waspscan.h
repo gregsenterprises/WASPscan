@@ -28,10 +28,16 @@
 
 #define VERSION 1.00
 
+/* Increment used when searching between min/max orbital periods.
+   If the increment is bigger than this then transits will not
+   be located because they'll be skipped over */
 #define SEARCH_INCREMENT_DAYS 0.00001
+
+/* Maximum number of steps in a search between min/max orbital periods */
 #define MAX_SEARCH_STEPS      1000000
 
-#define MAX_SERIES_LENGTH 100000
+/* Maximum length of a series of values loaded from a log file */
+#define MAX_SERIES_LENGTH     100000
 
 float detect_mean(float series[], int series_length);
 float detect_variance(float series[], int series_length, float mean);
