@@ -20,9 +20,34 @@
 
 #define LIGHT_CURVE_LENGTH 256
 
+/* temporary files used to create plots */
 char * plot_script_filename = "/tmp/SuperWASP.plot";
 char * plot_data_filename = "/tmp/SuperWASP.dat";
 
+/**
+ * @brief creates a gnuplot script
+ * @param plot_scipt_filename Filename for the plot script
+ * @param plot_data_filename Filename for the data to be plotted
+ * @param title Title of the plot
+ * @param subtitle Subtitle of the plot
+ * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+ * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+ * @param min_x The minimum horizontal value
+ * @param max_x The maximum horizontal value
+ * @param min_y The minimum vertical value
+ * @param max_y The maximum vertical value
+ * @param x_label Label for the horizontal axis
+ * @param y_label Label for the vertical axis
+ * @param image_filename Filename to save the plot as
+ * @param image_width Width of the image to be saved
+ * @param image_height Height of the image to be saved
+ * @param field_name
+ * @param field_number
+ * @param show_minmax Show minimum and maximum values
+ * @param plot_points Whether to plot individual samples
+ * @param runningaverage Whether to show a running average
+ * @param returns 0 on success
+ */
 int gnuplot_create_script(char * plot_script_filename,
                           char * plot_data_filename,
                           char * title, char * subtitle,
@@ -84,7 +109,8 @@ int gnuplot_create_script(char * plot_script_filename,
         }
 
         if (runningaverage != 0) {
-            fprintf(fp,", \"%s\" using 1:5 title \"Running\" with %s", plot_data_filename, draw_type);
+            fprintf(fp,", \"%s\" using 1:5 title \"Running\" with %s",
+                    plot_data_filename, draw_type);
         }
 
         if (show_minmax != 0) {
@@ -101,28 +127,38 @@ int gnuplot_create_script(char * plot_script_filename,
     return 0;
 }
 
+/**
+ * @brief Saves a data series to file
+ * @param timestamp Array containing times for each entry
+ * @param series Array containing values for each entry
+ * @param series_length Length of the Array
+ * @param plot_data_filename Filename to save as
+ * @returns 0 on success
+ */
 int gnuplot_save_data(float timestamp[], float series[],
                       int series_length,
                       char * plot_data_filename)
 {
-    int i;
-    FILE * fp;
-
-    fp = fopen(plot_data_filename,"w");
+    FILE * fp = fopen(plot_data_filename,"w");
     if (!fp) return -1;
-    for (i = 0; i < series_length; i++) {
+    for (int i = 0; i < series_length; i++) {
         fprintf(fp,"%.8f %.8f\n", timestamp[i], series[i]);
     }
     fclose(fp);
     return 0;
 }
 
+/**
+ * @brief Returns the min and max values within a data series
+ * @param series Array containing values
+ * @param series_length Length of the array
+ * @param range_min Returned minimum value
+ * @param range_max Returned maximum value
+ */
 void gnuplot_get_range(float series[], int series_length,
                        float * range_min, float * range_max)
 {
-    int i;
-
-    for (i = 0; i < series_length; i++) {
+    for (int i = 0; i < series_length; i++) {
         if (i > 0) {
             if (series[i] < *range_min) {
                 *range_min = series[i];
@@ -138,6 +174,20 @@ void gnuplot_get_range(float series[], int series_length,
     }
 }
 
+/**
+ * @brief Plots the full series of points
+ * @param title Title for the plot
+ * @param timestamp Array containing times for each entry
+ * @param series Array containing values for each entry
+ * @param series_length Length of the Array
+ * @param image_filename Filename for the image to save as
+ * @param image_width Width of the image to be saved
+ * @param image_height Height of the image to be saved
+ * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+ * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+ * @param axis_label Label for the vertical axis
+ * @returns result of the call to system()
+ */
 int gnuplot_distribution(char * title,
                          float timestamp[],
                          float series[], int series_length,
@@ -191,6 +241,21 @@ int gnuplot_distribution(char * title,
     return system(commandstr);
 }
 
+/**
+ * @brief Plots a light curve
+ * @param title Title for the plot
+ * @param timestamp Array containing times for each entry
+ * @param series Array containing values for each entry
+ * @param series_length Length of the Array
+ * @param image_filename Filename for the image to save as
+ * @param image_width Width of the image to be saved
+ * @param image_height Height of the image to be saved
+ * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+ * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+ * @param axis_label Label for the vertical axis
+ * @param period_days Orbital period in days
+ * @returns result of the call to system()
+ */
 int gnuplot_light_curve(char * title,
                         float timestamp[],
                         float series[], int series_length,
@@ -259,6 +324,21 @@ int gnuplot_light_curve(char * title,
     return system(commandstr);
 }
 
+/**
+ * @brief Plots a light curve as a distribution of samples
+ * @param title Title for the plot
+ * @param timestamp Array containing times for each entry
+ * @param series Array containing values for each entry
+ * @param series_length Length of the Array
+ * @param image_filename Filename for the image to save as
+ * @param image_width Width of the image to be saved
+ * @param image_height Height of the image to be saved
+ * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+ * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+ * @param axis_label Label for the vertical axis
+ * @param period_days Orbital period in days
+ * @returns result of the call to system()
+ */
 int gnuplot_light_curve_distribution(char * title,
                                      float timestamp[],
                                      float series[], int series_length,
