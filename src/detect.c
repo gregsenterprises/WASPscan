@@ -129,7 +129,9 @@ static void light_curve_base(float timestamp[],
 }
 
 /**
- * @brief Resamples a light curve within bounds
+ * @brief Resamples a light curve within bounds.
+ *        This is used to disguard outliers which otherwise
+ *        cause distraction.
  * @param min_value Minimum value
  * @param max_value Maximum value
  * @param timestamp Array of imaging times
@@ -318,6 +320,7 @@ float detect_orbital_period(float timestamp[],
         return 0;
     }
 
+    /* Try different orbital periods in parallel */
 #pragma omp parallel for
     for (step = 0; step < steps; step++) {
         float curve[DETECT_CURVE_LENGTH];
@@ -446,18 +449,6 @@ float detect_orbital_period(float timestamp[],
             response[step] =
                 (mean-minimum)*dipped*100/(mean*(1+nondipped));
             response[step] /= (density_variance*variance);
-            /*
-            if (dipped > 0) {
-                printf("days %.6f dipped %d nondipped %d\n",
-                       orbital_period_days, dipped, nondipped);
-            }
-            */
-            /*
-            printf("days %.6f den %.4f response %.4f\n",
-                   orbital_period_days,
-                   density_variance,
-                   response[step]);
-            */
         }
     }
 
