@@ -289,9 +289,9 @@ void adjust_curve(float curve[], int curve_length, int offset)
 }
 
 /**
- * @brief Attempts to detect the orbital period via the transit method
- *        This tries man possible periods and looks for a dip in
- *        magnitude
+ * @brief Attempts to detect the orbital period via the transit method.
+ *        This tries many possible periods and looks for a dip in
+ *        magnitude.
  * @param timestamp Times for observations
  * @param series Magnitude observations
  * @param series_length Length of the Array
