@@ -324,7 +324,7 @@ float detect_orbital_period(float timestamp[],
 #pragma omp parallel for
     for (step = 0; step < steps; step++) {
         float curve[DETECT_CURVE_LENGTH];
-		float density[DETECT_CURVE_LENGTH];
+        float density[DETECT_CURVE_LENGTH];
         float orbital_period_days = min_period_days + (step*increment_days);
 
         light_curve(timestamp, series, series_length,
@@ -407,7 +407,12 @@ float detect_orbital_period(float timestamp[],
         int dipped = 0;
         float threshold_dipped = minimum + ((mean-minimum)*0.2);
         for (int j = 0; j < DETECT_CURVE_LENGTH; j++) {
-            if (curve[j] < threshold_dipped) dipped++;
+            if (curve[j] < threshold_dipped) {
+                dipped++;
+                if (dipped > max_dipped) {
+                    break;
+                }
+            }
         }
         /* we only expect a small percentage
            of the curve to be dipped */
@@ -426,6 +431,9 @@ float detect_orbital_period(float timestamp[],
             if ((curve[j] < threshold_upper) &&
                 (curve[j] > threshold_dipped)) {
                 nondipped++;
+                if (nondipped > max_nondipped) {
+                    break;
+                }
             }
         }
         if (nondipped > max_nondipped) {
