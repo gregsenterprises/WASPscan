@@ -14,6 +14,7 @@ install:
 	mkdir -p ${DESTDIR}/usr/bin
 	install -m 755 --strip ${APP} ${DESTDIR}/usr/bin
 	install -m 755 ${APP}dir ${DESTDIR}/usr/bin
+	install -m 755 fits2tbl ${DESTDIR}/usr/bin
 	mkdir -m 755 -p ${DESTDIR}/usr/share
 	mkdir -m 755 -p ${DESTDIR}/usr/share/man
 	mkdir -m 755 -p ${DESTDIR}/usr/share/man/man1
