@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-LOG_FILES=*.tbl
 MIN_PERIOD_DAYS=0.5
 MAX_PERIOD_DAYS=4.0
 
@@ -29,11 +28,21 @@ if [ $2 ]; then
     echo "Maximum orbital period $MAX_PERIOD_DAYS days"
 fi
 
+LOG_FILES=*.tbl
 for f in $LOG_FILES
 do
     echo "Scanning $f"
     waspscan -f $f --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS
 done
+
+LOG_FILES=*.fits
+for f in $LOG_FILES
+do
+    echo "Scanning $f"
+    fits2tbl $f > /tmp/fits
+    waspscan -f /tmp/fits --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS
+done
+
 echo "Done"
 
 exit 0
