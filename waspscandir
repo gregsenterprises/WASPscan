@@ -39,8 +39,8 @@ LOG_FILES=*.fits
 for f in $LOG_FILES
 do
     echo "Scanning $f"
-    fits2tbl $f > /tmp/fits
-    waspscan -f /tmp/fits --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS
+    fits2tbl $f > $f.tbl
+    waspscan -f $f.tbl --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS
 done
 
 echo "Done"
