@@ -32,7 +32,19 @@ except:
     sys.exit(-2)
 
 listname="PHOTOMETRY"
-scidata = hdulist[listname].data
+if len(sys.argv) > 2:
+    if sys.argv[2]:
+        if sys.argv[2]>='0' and sys.argv[2]<='9':
+            listname=int(sys.argv[2])
+        else:
+            listname=sys.argv[2]
+
+try:
+    scidata = hdulist[listname].data
+except:
+    print "Table not found"
+    sys.exit(-3)
+
 no_of_fields = len(scidata[0])
 
 # Extract the headers
