@@ -157,8 +157,8 @@ int main(int argc, char* argv[])
         orbital_period_days = known_period_days;
     }
 
-    sprintf(light_curve_filename,"WASP_%s.png",name);
-    sprintf(light_curve_distribution_filename,"WASP_distr_%s.png",name);
+    sprintf(light_curve_filename,"%s.png",name);
+    sprintf(light_curve_distribution_filename,"%s_distr.png",name);
     sprintf(title,"SuperWASP Light Curve for %s",name);
     gnuplot_light_curve_distribution(title,
                                      timestamp, series, series_length,
