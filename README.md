@@ -34,6 +34,18 @@ And for all the available data:
 
 Once you've downloaded those you can open *SuperWASP_confirmed_wget.bat* in your favourite editor and manually run individual wgets, or make it executable and download all the data sets. Please be warned that downloading all of the data series could take a very long time, so you may want to be selective.
 
+File Formats
+------------
+The two file formats used are *fits* and *tbl*. waspconvert only uses the tbl format, so if you have fits files those can be converted with:
+
+    fits2tbl [fits filename] > [table filename]
+
+Or for non-WASP fits files:
+
+    fits2tbl [fits filename] [table index] > [table filename]
+
+Where the table index is a number of the table inside of the fits file.
+
 Usage
 -----
 To search for a transit within a range of orbital periods:

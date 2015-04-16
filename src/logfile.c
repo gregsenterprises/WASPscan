@@ -39,10 +39,14 @@
  * @param timestamp Returned array containing the time of each data point
  * @param series Returned array containing magnitudes
  * @param max_series_length The maximum number of data points to be returned
+ * @param time_field_index Index of the table column which contains the time
+ * @param flux_field_index Index of the table column which contains the
+ *        photon flux
  * @returns The number of data points loaded
  */
 int logfile_load(char * filename, float timestamp[],
-                 float series[], int max_series_length)
+                 float series[], int max_series_length,
+				 int time_field_index, int flux_field_index)
 {
     FILE * fp;
     char linestr[512], valuestr[512];
@@ -70,10 +74,10 @@ int logfile_load(char * filename, float timestamp[],
                 else {
                     if (ctr > 0) {
                         valuestr[ctr]=0;
-                        if (field_index == TMID) {
+                        if (field_index == time_field_index) {
                             timestamp[series_length] = atof(valuestr);
                         }
-                        if (field_index == TAMFLUX2) {
+                        if (field_index == flux_field_index) {
                             series[series_length++] = atof(valuestr);
                             if (series_length >= max_series_length) {
                                 fclose(fp);

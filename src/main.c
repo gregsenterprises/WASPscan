@@ -26,6 +26,7 @@ void show_help()
     printf(" -p  --period                Known orbital period in days\n");
     printf(" -0  --min                   Minimum orbital period in days\n");
     printf(" -1  --max                   Maximum orbital period in days\n");
+    printf(" -t  --type                  Table type: 0=WASP 1=K2\n");
     printf(" -h  --help                  Show help\n");
     printf(" -v  --version               Show version number\n");
 }
@@ -45,6 +46,8 @@ int main(int argc, char* argv[])
     float known_period_days = 0;
     char light_curve_filename[256];
     char light_curve_distribution_filename[256];
+    int table_type = TABLE_TYPE_WASP;
+    int time_field_index=0, flux_field_index=3;
 
     /* if no options given then show help */
     if (argc <= 1) {
@@ -89,6 +92,21 @@ int main(int argc, char* argv[])
                 known_period_days = atof(argv[i]);
             }
         }
+        /* table type */
+        if ((strcmp(argv[i],"-t")==0) ||
+            (strcmp(argv[i],"--type")==0)) {
+            i++;
+            if (i < argc) {
+                if ((strcmp(argv[i],"wasp")==0) ||
+					(strcmp(argv[i],"WASP")==0)) {
+					table_type = TABLE_TYPE_WASP;
+				}
+                if ((strcmp(argv[i],"k2")==0) ||
+					(strcmp(argv[i],"K2")==0)) {
+					table_type = TABLE_TYPE_K2;
+				}
+            }
+        }
         /* show help */
         if ((strcmp(argv[i],"-h")==0) ||
                 (strcmp(argv[i],"--help")==0)) {
@@ -124,11 +142,26 @@ int main(int argc, char* argv[])
     /* get the name of the scan from the log filename */
     scan_name(log_filename, name);
 
+    /* change the table columns based upon the format type */
+    switch(table_type) {
+    case TABLE_TYPE_WASP: {
+        time_field_index=0;
+        flux_field_index=3;
+        break;
+    }
+    case TABLE_TYPE_K2: {
+        time_field_index=0;
+        flux_field_index=2;
+        break;
+    }
+    }
+
     /* read the data */
     series_length = logfile_load(log_filename,
                                  timestamp,
                                  series,
-                                 MAX_SERIES_LENGTH);
+                                 MAX_SERIES_LENGTH,
+                                 time_field_index, flux_field_index);
     printf("%d values loaded\n", series_length);
 
     no_of_sections = detect_endpoints(timestamp, series_length,

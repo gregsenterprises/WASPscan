@@ -17,6 +17,8 @@
 
 MIN_PERIOD_DAYS=0.5
 MAX_PERIOD_DAYS=4.0
+listname="PHOTOMETRY"
+TABLE_TYPE="wasp"
 
 if [ $1 ]; then
     MIN_PERIOD_DAYS=$1
@@ -26,6 +28,19 @@ fi
 if [ $2 ]; then
     MAX_PERIOD_DAYS=$2
     echo "Maximum orbital period $MAX_PERIOD_DAYS days"
+fi
+
+if [ $3 ]; then
+    TABLE_TYPE=$3
+    if [[ $TABLE_TYPE != "wasp" ]]; then
+        listname=1
+    fi
+    echo "Type: $TABLE_TYPE"
+fi
+
+if [ $4 ]; then
+    listname=$4
+    echo "List: $listname"
 fi
 
 LOG_FILES=*.tbl
@@ -39,9 +54,9 @@ LOG_FILES=*.fits
 for f in $LOG_FILES
 do
     echo "Scanning $f"
-    fits2tbl $f > $f.tbl
+    fits2tbl $f $listname > $f.tbl
     if [ -f $f.tbl ]; then
-        waspscan -f $f.tbl --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS
+        waspscan -f $f.tbl --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --type $TABLE_TYPE
         rm $f.tbl
     fi
 done
