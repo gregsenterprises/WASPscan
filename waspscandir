@@ -40,8 +40,10 @@ for f in $LOG_FILES
 do
     echo "Scanning $f"
     fits2tbl $f > $f.tbl
-    waspscan -f $f.tbl --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS
-    rm $f.tbl
+    if [ -f $f.tbl ]; then
+        waspscan -f $f.tbl --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS
+        rm $f.tbl
+    fi
 done
 
 echo "Done"
