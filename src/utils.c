@@ -28,7 +28,7 @@
  */
 void scan_name(char * filename, char * result)
 {
-    int start_index, ctr=0, i;
+    int start_index, end_index, ctr=0, i;
 
     for (start_index = strlen(filename)-1; start_index > 0; start_index--) {
         if (filename[start_index] == '/') {
@@ -37,7 +37,14 @@ void scan_name(char * filename, char * result)
         }
     }
 
-    for (i = start_index; i < strlen(filename)-7; i++) {
+	for (end_index = strlen(filename)-1; end_index > 1; end_index--) {
+        if (filename[end_index] == '_') {
+            end_index--;
+            break;
+        }
+	}
+	
+    for (i = start_index; i < end_index; i++) {
         result[ctr++] = filename[i];
     }
     result[ctr]=0;

@@ -30,9 +30,43 @@ try:
 except:
     print "File not found " + filename
     sys.exit(-2)
-scidata = hdulist["PHOTOMETRY"].data
 
+listname="PHOTOMETRY"    
+scidata = hdulist[listname].data
 no_of_fields = len(scidata[0])
+
+# Extract the headers
+headers = repr(hdulist[listname].header).split("\n")
+col = 0
+field_type = []
+field_name = []
+for h in headers:
+    field_type.append(h.split("=")[0].strip())
+    name = h.split("=")[1].strip()
+    if "'" in name:
+        field_name.append(name.split("'")[1].strip())
+    else:
+        field_name.append("")
+
+# Field name header
+sys.stdout.write("| ")
+for i in range(len(field_name)):
+    if field_type[i].startswith("TTYPE"):
+        if i < len(field_name)-1:
+            sys.stdout.write(field_name[i] + " ")
+        else:
+            print field_name[i]
+
+# Field units header
+sys.stdout.write("| ")
+for i in range(len(field_name)):
+    if field_type[i].startswith("TUNIT"):
+        if i < len(field_name)-1:
+            sys.stdout.write(field_name[i] + " ")
+        else:
+            print field_name[i]
+
+# Show the data
 for i in range(len(scidata)):
     for j in range(no_of_fields):
         if j < no_of_fields-1:
