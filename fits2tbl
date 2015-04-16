@@ -31,7 +31,7 @@ except:
     print "File not found " + filename
     sys.exit(-2)
 
-listname="PHOTOMETRY"    
+listname="PHOTOMETRY"
 scidata = hdulist[listname].data
 no_of_fields = len(scidata[0])
 
@@ -62,9 +62,9 @@ sys.stdout.write("| ")
 for i in range(len(field_name)):
     if field_type[i].startswith("TUNIT"):
         if i < len(field_name)-1:
-            sys.stdout.write(field_name[i] + " ")
+            sys.stdout.write('"' + field_name[i] + '" ')
         else:
-            print field_name[i]
+            print '"' + field_name[i] + '"'
 
 # Show the data
 for i in range(len(scidata)):
