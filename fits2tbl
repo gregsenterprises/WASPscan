@@ -38,33 +38,38 @@ no_of_fields = len(scidata[0])
 # Extract the headers
 headers = repr(hdulist[listname].header).split("\n")
 col = 0
-field_type = []
+field_units = []
 field_name = []
 for h in headers:
-    field_type.append(h.split("=")[0].strip())
-    name = h.split("=")[1].strip()
-    if "'" in name:
-        field_name.append(name.split("'")[1].strip())
-    else:
-        field_name.append("")
+    typestr=h.split("=")[0].strip()
+    if typestr.startswith("TTYPE"):
+        name = h.split("=")[1].strip()
+        if "'" in name:
+            title = name.split("'")[1].strip()
+            if len(title) > 0:
+                field_name.append(title)
+    if typestr.startswith("TUNIT"):
+        name = h.split("=")[1].strip()
+        if "'" in name:
+            title = name.split("'")[1].strip()
+            if len(title) > 0:
+                field_units.append(title)
 
 # Field name header
 sys.stdout.write("| ")
 for i in range(len(field_name)):
-    if field_type[i].startswith("TTYPE"):
-        if i < len(field_name)-1:
-            sys.stdout.write(field_name[i] + " ")
-        else:
-            print field_name[i]
+    if i < (len(field_name)-1):
+        sys.stdout.write(field_name[i] + " ")
+    else:
+        print field_name[i]
 
 # Field units header
 sys.stdout.write("| ")
-for i in range(len(field_name)):
-    if field_type[i].startswith("TUNIT"):
-        if i < len(field_name)-1:
-            sys.stdout.write('"' + field_name[i] + '" ')
-        else:
-            print '"' + field_name[i] + '"'
+for i in range(len(field_units)):
+    if i < (len(field_units)-1):
+        sys.stdout.write('"' + field_units[i] + '" ')
+    else:
+        print '"' + field_units[i] + '"'
 
 # Show the data
 for i in range(len(scidata)):
