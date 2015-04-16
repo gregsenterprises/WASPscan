@@ -36,7 +36,7 @@ Once you've downloaded those you can open *SuperWASP_confirmed_wget.bat* in your
 
 File Formats
 ------------
-The two file formats used are *fits* and *tbl*. waspconvert only uses the tbl format, so if you have fits files those can be converted with:
+The two file formats used are *fits* and *tbl*. waspscan only uses the tbl format, so if you have fits files those can be converted with:
 
     fits2tbl [fits filename] > [table filename]
 
