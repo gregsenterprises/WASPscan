@@ -37,14 +37,23 @@ void scan_name(char * filename, char * result)
         }
     }
 
-	for (end_index = strlen(filename)-1; end_index > 1; end_index--) {
-        if (filename[end_index] == '_') {
-            end_index--;
-            break;
+    end_index = strlen(filename)-1;
+    for (i = strlen(filename)-3; i > 1; i--) {
+        if (filename[i] == '.') {
+            if ((filename[i+1] == 't') &&
+                (filename[i+2] == 'b') &&
+                (filename[i+3] == 'l')) {
+                end_index = i-1;
+            }
+            if ((filename[i+1] == 'f') &&
+                (filename[i+2] == 'i') &&
+                (filename[i+3] == 't')) {
+                end_index = i-1;
+            }
         }
-	}
-	
-    for (i = start_index; i < end_index; i++) {
+    }
+
+    for (i = start_index; i <= end_index; i++) {
         result[ctr++] = filename[i];
     }
     result[ctr]=0;
