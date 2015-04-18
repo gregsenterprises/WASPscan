@@ -138,7 +138,7 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
 
                 # optionally send a notification email
                 if [ $EMAIL_ADDRESS ]; then
-                    echo $FITS_FILENAME | mail -s "waspd: Candidate transit" $EMAIL_ADDRESS
+                    echo "$FITS_FILENAME" | mail -s "waspd: Candidate transit" $EMAIL_ADDRESS
                 fi
             fi
         fi
@@ -154,7 +154,7 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
 done
 
 if [ $EMAIL_ADDRESS ]; then
-    echo $(ls $WORKING_DIR/candidates) | mail -s "waspd search completed" $EMAIL_ADDRESS
+    echo "$(ls $WORKING_DIR/candidates)" | mail -s "waspd search completed" $EMAIL_ADDRESS
 fi
 
 exit 0
