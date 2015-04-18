@@ -63,3 +63,20 @@ If you want to scan multiple *tbl* files or *fits* files within a directory ther
     waspscandir [minimum period] [maximum period]
 
 Log files will be scanned one by one and if transits are found then plot images will be generated for them within the same directory for subsequent manual review.
+
+Scaling up the search
+---------------------
+It is also possible to install a daemon which will search through light curves and report its results. The daemon currently only runs with a systemd init system (Fedora, Ubuntu 15.04+, Debian 8+).
+
+    startwaspd --archive [bulk data download url]
+               --start [percent] --end [percent]
+               --min [period days] --max [period days]
+               --email [email address]
+
+The start and end percent values indicate where within the total data set the daemon will begin searching and where it will end. Hence you can distribute the search across multiple machines, each searching only a portion of the data. The --email parameter is optional and will only work if the machine has an email server installed.
+
+You can check whether the daemon is running with:
+
+    systemctl status waspd
+
+Any candidate transits will be saved into the directory */home/wasp/candidates*
