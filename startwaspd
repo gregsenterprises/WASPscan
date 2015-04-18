@@ -1,0 +1,159 @@
+#!/bin/bash
+
+#  Copyright (C) 2015 Bob Mottram
+#  bob@robotics.uk.to
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+DOWNLOAD_ARCHIVE="http://exoplanetarchive.ipac.caltech.edu/bulk_data_download/SuperWASP_wget.tar.gz"
+START_PERCENT=0
+END_PERCENT=100
+MIN_PERIOD_DAYS=0.5
+MAX_PERIOD_DAYS=4.0
+USERNAME=wasp
+WORKING_DIR=/home/$USERNAME
+FITS_LOG=$WORKING_DIR/fits.log
+listname="PHOTOMETRY"
+TABLE_TYPE="wasp"
+EMAIL_ADDRESS=
+
+function show_help {
+    echo ''
+    echo 'startwaspd --archive [bulk data download url]'
+    echo '           --start [percent] --end [percent]'
+    echo '           --min [period days] --max [period days]'
+    echo '           --list [fits file table index name]'
+    echo '           --email [email address]'
+    echo ''
+    exit 0
+}
+
+while [[ $# > 1 ]]
+do
+key="$1"
+
+case $key in
+    -h|--help)
+    show_help
+    ;;
+    -a|--archive)
+    shift
+    DOWNLOAD_ARCHIVE="$1"
+    ;;
+    -0|--min)
+    shift
+    MIN_PERIOD_DAYS="$1"
+    ;;
+    -1|--max)
+    shift
+    MAX_PERIOD_DAYS="$1"
+    ;;
+    -s|--start)
+    shift
+    START_PERCENT="$1"
+    ;;
+    -e|--end)
+    shift
+    END_PERCENT="$1"
+    ;;
+    -l|--list)
+    shift
+    listname="$1"
+    ;;
+    -t|--type)
+    shift
+    TABLE_TYPE="$1"
+    ;;
+    --log)
+    shift
+    FITS_LOG="$1"
+    ;;
+    --email)
+    shift
+    EMAIL_ADDRESS="$1"
+    ;;
+    *)
+    # unknown option
+    ;;
+esac
+shift
+done
+
+if [ ! -d $WORKING_DIR ]; then
+    adduser --disabled-login --gecos 'WASP' $USERNAME
+fi
+chown -R $USERNAME:$USERNAME $WORKING_DIR
+systemd stop waspd
+
+echo '[Unit]' > /etc/systemd/system/waspd.service
+echo 'Description=WASPd (transit detection daemon)' >> /etc/systemd/system/waspd.service
+echo 'After=syslog.target' >> /etc/systemd/system/waspd.service
+echo 'After=network.target' >> /etc/systemd/system/waspd.service
+echo '' >> /etc/systemd/system/waspd.service
+echo '[Service]' >> /etc/systemd/system/waspd.service
+echo 'Type=simple' >> /etc/systemd/system/waspd.service
+echo "User=$USERNAME" >> /etc/systemd/system/waspd.service
+echo "Group=$USERNAME" >> /etc/systemd/system/waspd.service
+echo "WorkingDirectory=$WORKING_DIR" >> /etc/systemd/system/waspd.service
+if [ $EMAIL_ADDRESS ]; then
+    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --email $EMAIL_ADDRESS" >> /etc/systemd/system/waspd.service
+else
+    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE" >> /etc/systemd/system/waspd.service
+fi
+echo 'Restart=always' >> /etc/systemd/system/waspd.service
+echo "Environment=\"USER=waspd\" \"HOME=$WORKING_DIR\"" >> /etc/systemd/system/waspd.service
+echo '' >> /etc/systemd/system/waspd.service
+echo '[Install]' >> /etc/systemd/system/waspd.service
+echo 'WantedBy=multi-user.target' >> /etc/systemd/system/waspd.service
+
+# remove any previously remembered line number
+STORED_LINE_NO=$WORKING_DIR/line.txt
+if [ -f $STORED_LINE_NO ]; then
+    rm -f $STORED_LINE_NO
+fi
+
+# clear the searched log
+if [ -f $WORKING_DIR/searched.log ]; then
+    rm -f $WORKING_DIR/searched.log
+fi
+
+# download and extract the bulk data
+cd $WORKING_DIR
+if [ ! -f $WORKING_DIR/*.tar.gz ]; then
+    wget $DOWNLOAD_ARCHIVE
+    if [ ! "$?" = "0" ]; then
+        exit 32545
+    fi
+fi
+tar -xzvf *.tar.gz
+
+# join all the wget scripts together into a single log file
+rm -f $FITS_LOG
+LOG_FILES=*.bat
+for f in $LOG_FILES
+do
+    echo "Extracting from $f"
+	grep ".fits" $f >> $FITS_LOG
+done
+rm *.bat
+
+systemctl enable waspd
+systemctl daemon-reload
+systemctl restart waspd
+if [ ! "$?" = "0" ]; then
+    exit 4643
+fi
+
+echo 'waspd started'
+exit 0

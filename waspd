@@ -1,0 +1,160 @@
+#!/bin/bash
+
+#  Copyright (C) 2015 Bob Mottram
+#  bob@robotics.uk.to
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+START_PERCENT=0
+END_PERCENT=100
+MIN_PERIOD_DAYS=0.5
+MAX_PERIOD_DAYS=4.0
+USERNAME=wasp
+WORKING_DIR=/home/$USERNAME
+FITS_LOG=$WORKING_DIR/fits.log
+STORED_LINE_NO=$WORKING_DIR/line.txt
+listname="PHOTOMETRY"
+TABLE_TYPE="wasp"
+EMAIL_ADDRESS=
+
+function show_help {
+    echo ''
+    echo 'waspd --start [percent] --end [percent]'
+    echo '      --min [period days] --max [period days]'
+    echo '      --list [fits file table index name]'
+    echo '      --email [email address]'
+    echo ''
+    exit 0
+}
+
+while [[ $# > 1 ]]
+do
+key="$1"
+
+case $key in
+    -h|--help)
+    show_help
+    ;;
+    -0|--min)
+    shift
+    MIN_PERIOD_DAYS="$1"
+    ;;
+    -1|--max)
+    shift
+    MAX_PERIOD_DAYS="$1"
+    ;;
+    -s|--start)
+    shift
+    START_PERCENT="$1"
+    ;;
+    -e|--end)
+    shift
+    END_PERCENT="$1"
+    ;;
+    -l|--list)
+    shift
+    listname="$1"
+    ;;
+    -t|--type)
+    shift
+    TABLE_TYPE="$1"
+    ;;
+    --log)
+    shift
+    FITS_LOG="$1"
+    ;;
+    --email)
+    shift
+    EMAIL_ADDRESS="$1"
+    ;;
+    *)
+    # unknown option
+    ;;
+esac
+shift
+done
+
+if [ ! -f $FITS_LOG ]; then
+    print "Log file not found  $FITS_LOG"
+    exit 3425
+fi
+
+NO_OF_FILES=$(cat $FITS_LOG | wc -l)
+
+# starting and ending line in the log file
+START_FILE_INDEX=(($NO_OF_FILES * $START_PERCENT / 100))
+END_FILE_INDEX=(($NO_OF_FILES * $END_PERCENT / 100))
+
+# Search between line numbers
+LINE_NO=$START_FILE_INDEX
+if [ -f $STORED_LINE_NO ]; then
+    LINE_NO=$(cat $STORED_LINE_NO)
+fi
+
+# create a directory for candidates
+if [ ! -d $WORKING_DIR/candidates ]; then
+    mkdir $WORKING_DIR/candidates
+fi
+
+while [  $LINE_NO -lt $END_FILE_INDEX ]; do
+    if [ -f *.fits ]; then
+        rm -f $WORKING_DIR/*.fits
+    fi
+    if [ -f *.png ]; then
+        rm -f $WORKING_DIR/*.png
+    fi
+
+    # extract the line from the log file
+    COMMAND=$(sed "$LINE_NOq;d" $FITS_LOG)
+
+    # wget the fits file
+    cd $WORKING_DIR
+    $COMMAND
+
+    FITS_FILENAME=$(ls *.fits | head -n 1)
+    if [ -f $FITS_FILENAME ]; then
+
+        # convert to table format
+        fits2tbl $FITS_FILENAME $listname > $FITS_FILENAME.tbl
+        if [ -f $FITS_FILENAME.tbl ]; then
+            # scan table for transits
+            waspscan -f $FITS_FILENAME.tbl --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --type $TABLE_TYPE
+            rm $FITS_FILENAME.tbl
+            echo $FITS_FILENAME >> $WORKING_DIR/searched.log
+
+            if [ -f $WORKING_DIR/*.png ]; then
+                mv *.png $WORKING_DIR/candidates
+
+                # optionally send a notification email
+                if [ $EMAIL_ADDRESS ]; then
+                    echo $FITS_FILENAME | mail -s "waspd: Candidate transit" $EMAIL_ADDRESS
+                fi
+            fi
+        fi
+
+    fi
+
+    # remember the line number so that it's
+    # possible to resume
+    echo "$LINE_NO" > $STORED_LINE_NO
+
+    # move to the next line
+    let LINE_NO=LINE_NO+1
+done
+
+if [ $EMAIL_ADDRESS ]; then
+    echo $(ls $WORKING_DIR/candidates) | mail -s "waspd search completed" $EMAIL_ADDRESS
+fi
+
+exit 0
