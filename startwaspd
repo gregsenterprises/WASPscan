@@ -90,6 +90,11 @@ esac
 shift
 done
 
+if [ ! -d /etc/systemd ]; then
+    echo "This daemon only works with systemd"
+    exit 7253
+fi
+
 if [ ! -d $WORKING_DIR ]; then
     adduser --disabled-login --gecos 'WASP' $USERNAME
 fi
@@ -144,7 +149,7 @@ LOG_FILES=*.bat
 for f in $LOG_FILES
 do
     echo "Extracting from $f"
-	grep ".fits" $f >> $FITS_LOG
+    grep ".fits" $f >> $FITS_LOG
 done
 rm *.bat
 
