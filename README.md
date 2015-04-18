@@ -73,7 +73,7 @@ It is also possible to install a daemon which will search through light curves a
                     --min [period days] --max [period days]
                     --email [email address]
 
-The start and end percent values indicate where within the total data set the daemon will begin searching and where it will end. Hence you can distribute the search across multiple machines, each searching only a portion of the data. The --email parameter is optional and will only work if the machine has an email server installed. If an email address is set then when candidate transits are detected then corresponding notification emails will be sent out.
+The start and end percent values indicate where within the total data set the daemon will begin searching and where it will end. Hence you can distribute the search across multiple machines, each searching only a portion of the data. The --email parameter is optional and will only work if the machine has an email server installed. If an email address is set then when a candidate transit is detected a corresponding email will be sent.
 
 You can check whether the daemon is running with:
 
