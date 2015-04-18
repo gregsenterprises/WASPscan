@@ -68,10 +68,10 @@ Scaling up the search
 ---------------------
 It is also possible to install a daemon which will search through light curves and report its results. The daemon currently only runs with a systemd init system (Fedora, Ubuntu 15.04+, Debian 8+).
 
-    startwaspd --archive [bulk data download url]
-               --start [percent] --end [percent]
-               --min [period days] --max [period days]
-               --email [email address]
+    sudo startwaspd --archive [bulk data download url]
+                    --start [percent] --end [percent]
+                    --min [period days] --max [period days]
+                    --email [email address]
 
 The start and end percent values indicate where within the total data set the daemon will begin searching and where it will end. Hence you can distribute the search across multiple machines, each searching only a portion of the data. The --email parameter is optional and will only work if the machine has an email server installed.
 
