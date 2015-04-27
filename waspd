@@ -114,11 +114,11 @@ if [ ! -d $WORKING_DIR/candidates ]; then
 fi
 
 while [  $LINE_NO -lt $END_FILE_INDEX ]; do
-    if [ -f *.fits ]; then
+    if ls $WORKING_DIR/*.fits 1> /dev/null 2>&1; then
         rm -f $WORKING_DIR/*.fits
     fi
-    if [ -f *.png ]; then
-        rm -f $WORKING_DIR/*.png
+    if ls $WORKING_DIR/*.png 1> /dev/null 2>&1; then
+        mv *.png $WORKING_DIR/candidates
     fi
 
     # extract the line from the log file
@@ -139,7 +139,7 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
             rm -f "$FITS_FILENAME.tbl"
             echo "$FITS_FILENAME" >> $WORKING_DIR/searched.log
 
-            if [ -f $WORKING_DIR/*.png ]; then
+            if ls $WORKING_DIR/*.png 1> /dev/null 2>&1; then
                 mv *.png $WORKING_DIR/candidates
 
                 # optionally send a notification email
