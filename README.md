@@ -74,7 +74,7 @@ It is also possible to install a daemon which will search through light curves a
                     --minsamples [number]
                     --email [email address]
 
-The start and end percent values indicate where within the total data set the daemon will begin searching and where it will end. Hence you can distribute the search across multiple machines, each searching only a portion of the data. The --email parameter is optional and will only work if the machine has an email server installed. If an email address is set then when a candidate transit is detected a corresponding email will be sent. This --minsamples parameter can be used to set a lower bound on the number of samples (observations) in the data set. If this value is too low then there won't be enough data to have much confidence if a possible transit is found.
+The start and end percent values indicate where within the total data set the daemon will begin searching and where it will end. Hence you can distribute the search across multiple machines, each searching only a portion of the data. The --email parameter is optional and will only work if the machine has an email server installed. If an email address is set then when a candidate transit is detected a corresponding email will be sent. The --minsamples parameter can be used to set a lower bound on the number of samples (observations) in the data set. If this value is too low then there won't be enough data to have much confidence if a possible transit is found.
 
 You can check whether the daemon is running with:
 
