@@ -19,6 +19,7 @@
 DOWNLOAD_ARCHIVE="http://exoplanetarchive.ipac.caltech.edu/bulk_data_download/SuperWASP_wget.tar.gz"
 START_PERCENT=0
 END_PERCENT=100
+MIN_DATA_SAMPLES=1000
 MIN_PERIOD_DAYS=0.5
 MAX_PERIOD_DAYS=4.0
 USERNAME=wasp
@@ -32,6 +33,7 @@ function show_help {
     echo ''
     echo 'startwaspd --archive [bulk data download url]'
     echo '           --start [percent] --end [percent]'
+    echo '           --minsamples [number]'
     echo '           --min [period days] --max [period days]'
     echo '           --list [fits file table index name]'
     echo '           --email [email address]'
@@ -50,6 +52,10 @@ case $key in
     -a|--archive)
     shift
     DOWNLOAD_ARCHIVE="$1"
+    ;;
+    -m|--minsamples)
+    shift
+    MIN_DATA_SAMPLES="$1"
     ;;
     -0|--min)
     shift
@@ -112,9 +118,9 @@ echo "User=$USERNAME" >> /etc/systemd/system/waspd.service
 echo "Group=$USERNAME" >> /etc/systemd/system/waspd.service
 echo "WorkingDirectory=$WORKING_DIR" >> /etc/systemd/system/waspd.service
 if [ $EMAIL_ADDRESS ]; then
-    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --email $EMAIL_ADDRESS" >> /etc/systemd/system/waspd.service
+    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --email $EMAIL_ADDRESS --minsamples $MIN_DATA_SAMPLES" >> /etc/systemd/system/waspd.service
 else
-    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE" >> /etc/systemd/system/waspd.service
+    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --minsamples $MIN_DATA_SAMPLES" >> /etc/systemd/system/waspd.service
 fi
 echo 'Restart=always' >> /etc/systemd/system/waspd.service
 echo "Environment=\"USER=waspd\" \"HOME=$WORKING_DIR\"" >> /etc/systemd/system/waspd.service

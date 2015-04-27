@@ -24,6 +24,7 @@ void show_help()
     printf("WASPscan: Detection of exoplanet transits\n\n");
     printf(" -f  --filename              Log filename\n");
     printf(" -p  --period                Known orbital period in days\n");
+    printf(" -m  --minsamples            Minimum number of data samples\n");
     printf(" -0  --min                   Minimum orbital period in days\n");
     printf(" -1  --max                   Maximum orbital period in days\n");
     printf(" -t  --type                  Table type: 0=WASP 1=K2\n");
@@ -41,6 +42,7 @@ int main(int argc, char* argv[])
     char log_filename[256];
     char name[256], title[256];
     float orbital_period_days;
+    int minimum_data_samples = 1000;
     float minimum_period_days = 0;
     float maximum_period_days = 0;
     float known_period_days = 0;
@@ -66,6 +68,14 @@ int main(int argc, char* argv[])
             i++;
             if (i < argc) {
                 sprintf(log_filename,"%s",argv[i]);
+            }
+        }
+        /* Minimum data samples */
+        if ((strcmp(argv[i],"-m")==0) ||
+            (strcmp(argv[i],"--minsamples")==0)) {
+            i++;
+            if (i < argc) {
+                minimum_data_samples = atoi(argv[i]);
             }
         }
         /* Minimum orbital period */
@@ -162,13 +172,17 @@ int main(int argc, char* argv[])
                                  series,
                                  MAX_SERIES_LENGTH,
                                  time_field_index, flux_field_index);
+    if (series_length < minimum_data_samples) {
+        printf("Number of data samples too small: %d\n", series_length);
+		return 1;
+	}
     printf("%d values loaded\n", series_length);
 
     no_of_sections = detect_endpoints(timestamp, series_length,
                                       endpoints);
     if (no_of_sections == 0) {
         printf("No sections detected in the time series\n");
-        return 1;
+        return 2;
     }
 
     /*orbital_period_days = 1.3382282f;*/

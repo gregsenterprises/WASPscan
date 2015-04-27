@@ -18,6 +18,7 @@
 
 START_PERCENT=0
 END_PERCENT=100
+MIN_DATA_SAMPLES=1000
 MIN_PERIOD_DAYS=0.5
 MAX_PERIOD_DAYS=4.0
 USERNAME=wasp
@@ -31,6 +32,7 @@ EMAIL_ADDRESS=
 function show_help {
     echo ''
     echo 'waspd --start [percent] --end [percent]'
+    echo '      --minsamples [number]'
     echo '      --min [period days] --max [period days]'
     echo '      --list [fits file table index name]'
     echo '      --email [email address]'
@@ -49,6 +51,10 @@ case $key in
     -0|--min)
     shift
     MIN_PERIOD_DAYS="$1"
+    ;;
+    -m|--minsamples)
+    shift
+    MIN_DATA_SAMPLES="$1"
     ;;
     -1|--max)
     shift
@@ -120,7 +126,7 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
 
     # wget the fits file
     cd $WORKING_DIR
-    $COMMAND
+    eval $COMMAND
 
     FITS_FILENAME="$WORKING_DIR/$(ls *.fits | head -n 1)"
     if [ -f "$FITS_FILENAME" ]; then
@@ -129,7 +135,7 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
         fits2tbl "$FITS_FILENAME" $listname > "$FITS_FILENAME.tbl"
         if [ -f "$FITS_FILENAME.tbl" ]; then
             # scan table for transits
-            waspscan -f "$FITS_FILENAME.tbl" --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --type $TABLE_TYPE
+            waspscan -f "$FITS_FILENAME.tbl" --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --type $TABLE_TYPE --minsamples $MIN_DATA_SAMPLES
             rm -f "$FITS_FILENAME.tbl"
             echo "$FITS_FILENAME" >> $WORKING_DIR/searched.log
 
