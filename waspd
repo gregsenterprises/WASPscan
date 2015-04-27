@@ -136,16 +136,18 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
         if [ -f "$FITS_FILENAME.tbl" ]; then
             # scan table for transits
             waspscan -f "$FITS_FILENAME.tbl" --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --type $TABLE_TYPE --minsamples $MIN_DATA_SAMPLES
-            rm -f "$FITS_FILENAME.tbl"
             echo "$FITS_FILENAME" >> $WORKING_DIR/searched.log
 
             if ls $WORKING_DIR/*.png 1> /dev/null 2>&1; then
                 mv *.png $WORKING_DIR/candidates
+                mv *.tbl $WORKING_DIR/candidates
 
                 # optionally send a notification email
                 if [ $EMAIL_ADDRESS ]; then
                     echo "$FITS_FILENAME" | mail -s "waspd: Candidate transit" $EMAIL_ADDRESS
                 fi
+            else
+                rm -f "$FITS_FILENAME.tbl"
             fi
         fi        
         rm -f "$FITS_FILENAME"
