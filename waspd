@@ -93,8 +93,8 @@ fi
 NO_OF_FILES=$(cat $FITS_LOG | wc -l)
 
 # starting and ending line in the log file
-START_FILE_INDEX=(($NO_OF_FILES * $START_PERCENT / 100))
-END_FILE_INDEX=(($NO_OF_FILES * $END_PERCENT / 100))
+START_FILE_INDEX=$(($NO_OF_FILES * $START_PERCENT / 100))
+END_FILE_INDEX=$(($NO_OF_FILES * $END_PERCENT / 100))
 
 # Search between line numbers
 LINE_NO=$START_FILE_INDEX
@@ -116,22 +116,22 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
     fi
 
     # extract the line from the log file
-    COMMAND=$(sed "$LINE_NOq;d" $FITS_LOG)
+    COMMAND=$(sed "${LINE_NO}q;d" $FITS_LOG)
 
     # wget the fits file
     cd $WORKING_DIR
     $COMMAND
 
-    FITS_FILENAME=$(ls *.fits | head -n 1)
-    if [ -f $FITS_FILENAME ]; then
+    FITS_FILENAME="$WORKING_DIR/$(ls *.fits | head -n 1)"
+    if [ -f "$FITS_FILENAME" ]; then
 
         # convert to table format
-        fits2tbl $FITS_FILENAME $listname > $FITS_FILENAME.tbl
-        if [ -f $FITS_FILENAME.tbl ]; then
+        fits2tbl "$FITS_FILENAME" $listname > "$FITS_FILENAME.tbl"
+        if [ -f "$FITS_FILENAME.tbl" ]; then
             # scan table for transits
-            waspscan -f $FITS_FILENAME.tbl --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --type $TABLE_TYPE
-            rm $FITS_FILENAME.tbl
-            echo $FITS_FILENAME >> $WORKING_DIR/searched.log
+            waspscan -f "$FITS_FILENAME.tbl" --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --type $TABLE_TYPE
+            rm -f "$FITS_FILENAME.tbl"
+            echo "$FITS_FILENAME" >> $WORKING_DIR/searched.log
 
             if [ -f $WORKING_DIR/*.png ]; then
                 mv *.png $WORKING_DIR/candidates
@@ -141,8 +141,8 @@ while [  $LINE_NO -lt $END_FILE_INDEX ]; do
                     echo "$FITS_FILENAME" | mail -s "waspd: Candidate transit" $EMAIL_ADDRESS
                 fi
             fi
-        fi
-
+        fi        
+        rm -f "$FITS_FILENAME"
     fi
 
     # remember the line number so that it's
