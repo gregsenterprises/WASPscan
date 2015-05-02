@@ -172,6 +172,18 @@ static void light_curve_resample(float min_value, float max_value,
             curve[i] /= hits[i];
         }
     }
+
+    /* fill any holes */
+    for (i = 0; i < curve_length; i++) {
+        if (curve[i] == 0) {
+            if (i > 0) {
+                curve[i] = curve[i-1];
+            }
+            else {
+                curve[i] = curve[curve_length-1];
+            }
+        }
+    }
 }
 
 /**
