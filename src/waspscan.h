@@ -47,7 +47,7 @@ float detect_mean(float series[], int series_length);
 float detect_variance(float series[], int series_length, float mean);
 int logfile_load(char * filename, float timestamp[],
                  float series[], int max_series_length,
-				 int time_field_index, int flux_field_index);
+                 int time_field_index, int flux_field_index);
 int gnuplot_distribution(char * title,
                          float timestamp[],
                          float series[], int series_length,
@@ -64,7 +64,8 @@ int gnuplot_light_curve(char * title,
                         float subtitle_indent_horizontal,
                         float subtitle_indent_vertical,
                         char * axis_label,
-                        float period_days);
+                        float period_days,
+                        float vertical_scale);
 int gnuplot_light_curve_distribution(char * title,
                                      float timestamp[],
                                      float series[], int series_length,
@@ -73,7 +74,8 @@ int gnuplot_light_curve_distribution(char * title,
                                      float subtitle_indent_horizontal,
                                      float subtitle_indent_vertical,
                                      char * axis_label,
-                                     float period_days);
+                                     float period_days,
+                                     float vertical_scale);
 void fft1D(float series[], int series_length, float freq[]);
 int detect_endpoints(float timestamp[], int series_length,
                      int endpoints[]);

@@ -25,29 +25,29 @@ char * plot_script_filename = "/tmp/SuperWASP.plot";
 char * plot_data_filename = "/tmp/SuperWASP.dat";
 
 /**
- * @brief creates a gnuplot script
- * @param plot_scipt_filename Filename for the plot script
- * @param plot_data_filename Filename for the data to be plotted
- * @param title Title of the plot
- * @param subtitle Subtitle of the plot
- * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
- * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
- * @param min_x The minimum horizontal value
- * @param max_x The maximum horizontal value
- * @param min_y The minimum vertical value
- * @param max_y The maximum vertical value
- * @param x_label Label for the horizontal axis
- * @param y_label Label for the vertical axis
- * @param image_filename Filename to save the plot as
- * @param image_width Width of the image to be saved
- * @param image_height Height of the image to be saved
- * @param field_name
- * @param field_number
- * @param show_minmax Show minimum and maximum values
- * @param plot_points Whether to plot individual samples
- * @param runningaverage Whether to show a running average
- * @param returns 0 on success
- */
+* @brief creates a gnuplot script
+* @param plot_scipt_filename Filename for the plot script
+* @param plot_data_filename Filename for the data to be plotted
+* @param title Title of the plot
+* @param subtitle Subtitle of the plot
+* @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+* @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+* @param min_x The minimum horizontal value
+* @param max_x The maximum horizontal value
+* @param min_y The minimum vertical value
+* @param max_y The maximum vertical value
+* @param x_label Label for the horizontal axis
+* @param y_label Label for the vertical axis
+* @param image_filename Filename to save the plot as
+* @param image_width Width of the image to be saved
+* @param image_height Height of the image to be saved
+* @param field_name
+* @param field_number
+* @param show_minmax Show minimum and maximum values
+* @param plot_points Whether to plot individual samples
+* @param runningaverage Whether to show a running average
+* @param returns 0 on success
+*/
 int gnuplot_create_script(char * plot_script_filename,
                           char * plot_data_filename,
                           char * title, char * subtitle,
@@ -128,13 +128,13 @@ int gnuplot_create_script(char * plot_script_filename,
 }
 
 /**
- * @brief Saves a data series to file
- * @param timestamp Array containing times for each entry
- * @param series Array containing values for each entry
- * @param series_length Length of the Array
- * @param plot_data_filename Filename to save as
- * @returns 0 on success
- */
+* @brief Saves a data series to file
+* @param timestamp Array containing times for each entry
+* @param series Array containing values for each entry
+* @param series_length Length of the Array
+* @param plot_data_filename Filename to save as
+* @returns 0 on success
+*/
 int gnuplot_save_data(float timestamp[], float series[],
                       int series_length,
                       char * plot_data_filename)
@@ -149,12 +149,12 @@ int gnuplot_save_data(float timestamp[], float series[],
 }
 
 /**
- * @brief Returns the min and max values within a data series
- * @param series Array containing values
- * @param series_length Length of the array
- * @param range_min Returned minimum value
- * @param range_max Returned maximum value
- */
+* @brief Returns the min and max values within a data series
+* @param series Array containing values
+* @param series_length Length of the array
+* @param range_min Returned minimum value
+* @param range_max Returned maximum value
+*/
 void gnuplot_get_range(float series[], int series_length,
                        float * range_min, float * range_max)
 {
@@ -175,19 +175,19 @@ void gnuplot_get_range(float series[], int series_length,
 }
 
 /**
- * @brief Plots the full series of points
- * @param title Title for the plot
- * @param timestamp Array containing times for each entry
- * @param series Array containing values for each entry
- * @param series_length Length of the Array
- * @param image_filename Filename for the image to save as
- * @param image_width Width of the image to be saved
- * @param image_height Height of the image to be saved
- * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
- * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
- * @param axis_label Label for the vertical axis
- * @returns result of the call to system()
- */
+* @brief Plots the full series of points
+* @param title Title for the plot
+* @param timestamp Array containing times for each entry
+* @param series Array containing values for each entry
+* @param series_length Length of the Array
+* @param image_filename Filename for the image to save as
+* @param image_width Width of the image to be saved
+* @param image_height Height of the image to be saved
+* @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+* @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+* @param axis_label Label for the vertical axis
+* @returns result of the call to system()
+*/
 int gnuplot_distribution(char * title,
                          float timestamp[],
                          float series[], int series_length,
@@ -242,20 +242,21 @@ int gnuplot_distribution(char * title,
 }
 
 /**
- * @brief Plots a light curve
- * @param title Title for the plot
- * @param timestamp Array containing times for each entry
- * @param series Array containing values for each entry
- * @param series_length Length of the Array
- * @param image_filename Filename for the image to save as
- * @param image_width Width of the image to be saved
- * @param image_height Height of the image to be saved
- * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
- * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
- * @param axis_label Label for the vertical axis
- * @param period_days Orbital period in days
- * @returns result of the call to system()
- */
+* @brief Plots a light curve
+* @param title Title for the plot
+* @param timestamp Array containing times for each entry
+* @param series Array containing values for each entry
+* @param series_length Length of the Array
+* @param image_filename Filename for the image to save as
+* @param image_width Width of the image to be saved
+* @param image_height Height of the image to be saved
+* @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+* @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+* @param axis_label Label for the vertical axis
+* @param period_days Orbital period in days
+* @param vertical_scale Vertical scaling factor
+* @returns result of the call to system()
+*/
 int gnuplot_light_curve(char * title,
                         float timestamp[],
                         float series[], int series_length,
@@ -264,7 +265,8 @@ int gnuplot_light_curve(char * title,
                         float subtitle_indent_horizontal,
                         float subtitle_indent_vertical,
                         char * axis_label,
-                        float period_days)
+                        float period_days,
+                        float vertical_scale)
 {
     char subtitle[256];
     float mean, variance;
@@ -303,8 +305,8 @@ int gnuplot_light_curve(char * title,
 
     mean = detect_mean(curve, LIGHT_CURVE_LENGTH);
     variance = detect_variance(curve, LIGHT_CURVE_LENGTH, mean);
-    range_min = mean - (variance*8);
-    range_max = mean + (variance*8);
+    range_min = mean - (variance*8*vertical_scale);
+    range_max = mean + (variance*8*vertical_scale);
 
     if (gnuplot_create_script((char*)plot_script_filename,
                               (char*)plot_data_filename,
@@ -325,20 +327,21 @@ int gnuplot_light_curve(char * title,
 }
 
 /**
- * @brief Plots a light curve as a distribution of samples
- * @param title Title for the plot
- * @param timestamp Array containing times for each entry
- * @param series Array containing values for each entry
- * @param series_length Length of the Array
- * @param image_filename Filename for the image to save as
- * @param image_width Width of the image to be saved
- * @param image_height Height of the image to be saved
- * @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
- * @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
- * @param axis_label Label for the vertical axis
- * @param period_days Orbital period in days
- * @returns result of the call to system()
- */
+* @brief Plots a light curve as a distribution of samples
+* @param title Title for the plot
+* @param timestamp Array containing times for each entry
+* @param series Array containing values for each entry
+* @param series_length Length of the Array
+* @param image_filename Filename for the image to save as
+* @param image_width Width of the image to be saved
+* @param image_height Height of the image to be saved
+* @param subtitle_indent_horizontal X coordinate of the subtitle (0.0-1.0)
+* @param subtitle_indent_vertical Y coordinate of the subtitle (0.0-1.0)
+* @param axis_label Label for the vertical axis
+* @param period_days Orbital period in days
+* @param vertical_scale Vertical scaling factor
+* @returns result of the call to system()
+*/
 int gnuplot_light_curve_distribution(char * title,
                                      float timestamp[],
                                      float series[], int series_length,
@@ -347,7 +350,8 @@ int gnuplot_light_curve_distribution(char * title,
                                      float subtitle_indent_horizontal,
                                      float subtitle_indent_vertical,
                                      char * axis_label,
-                                     float period_days)
+                                     float period_days,
+                                     float vertical_scale)
 {
     char subtitle[256];
     float mean, variance, adjust;
@@ -387,8 +391,8 @@ int gnuplot_light_curve_distribution(char * title,
 
     mean = detect_mean(series, series_length);
     variance = detect_variance(series, series_length, mean);
-    range_min = mean - variance*3;
-    range_max = mean + variance*3;
+    range_min = mean - variance*3*vertical_scale;
+    range_max = mean + variance*3*vertical_scale;
 
     if (gnuplot_create_script((char*)plot_script_filename,
                               (char*)plot_data_filename,

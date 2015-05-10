@@ -28,6 +28,7 @@ void show_help()
     printf(" -0  --min                   Minimum orbital period in days\n");
     printf(" -1  --max                   Maximum orbital period in days\n");
     printf(" -t  --type                  Table type: 0=WASP 1=K2\n");
+    printf("     --vscale                Vertical scaling factor\n");
     printf(" -h  --help                  Show help\n");
     printf(" -v  --version               Show version number\n");
 }
@@ -50,6 +51,7 @@ int main(int argc, char* argv[])
     char light_curve_distribution_filename[256];
     int table_type = TABLE_TYPE_WASP;
     int time_field_index=0, flux_field_index=3;
+    float vertical_scale = 1.0f;
 
     /* if no options given then show help */
     if (argc <= 1) {
@@ -76,6 +78,13 @@ int main(int argc, char* argv[])
             i++;
             if (i < argc) {
                 minimum_data_samples = atoi(argv[i]);
+            }
+        }
+        /* Minimum orbital period */
+        if (strcmp(argv[i],"--vscale")==0) {
+            i++;
+            if (i < argc) {
+                vertical_scale = atof(argv[i]);
             }
         }
         /* Minimum orbital period */
@@ -108,13 +117,13 @@ int main(int argc, char* argv[])
             i++;
             if (i < argc) {
                 if ((strcmp(argv[i],"wasp")==0) ||
-					(strcmp(argv[i],"WASP")==0)) {
-					table_type = TABLE_TYPE_WASP;
-				}
+                    (strcmp(argv[i],"WASP")==0)) {
+                    table_type = TABLE_TYPE_WASP;
+                }
                 if ((strcmp(argv[i],"k2")==0) ||
-					(strcmp(argv[i],"K2")==0)) {
-					table_type = TABLE_TYPE_K2;
-				}
+                    (strcmp(argv[i],"K2")==0)) {
+                    table_type = TABLE_TYPE_K2;
+                }
             }
         }
         /* show help */
@@ -174,8 +183,8 @@ int main(int argc, char* argv[])
                                  time_field_index, flux_field_index);
     if (series_length < minimum_data_samples) {
         printf("Number of data samples too small: %d\n", series_length);
-		return 1;
-	}
+        return 1;
+    }
     printf("%d values loaded\n", series_length);
 
     no_of_sections = detect_endpoints(timestamp, series_length,
@@ -213,14 +222,16 @@ int main(int argc, char* argv[])
                                      1024, 640,
                                      0.44,0.93,
                                      "TAMUZ corrected processed flux (micro Vega)",
-                                     orbital_period_days);
+                                     orbital_period_days,
+                                     vertical_scale);
     gnuplot_light_curve(title,
                         timestamp, series, series_length,
                         light_curve_filename,
                         1024, 640,
                         0.44,0.93,
                         "TAMUZ corrected processed flux (micro Vega)",
-                        orbital_period_days);
+                        orbital_period_days,
+                        vertical_scale);
 
     return 0;
 }
