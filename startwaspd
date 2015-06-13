@@ -28,6 +28,7 @@ FITS_LOG=$WORKING_DIR/fits.log
 listname="PHOTOMETRY"
 TABLE_TYPE="wasp"
 EMAIL_ADDRESS=
+INIT_SYSTEM="d"
 
 function show_help {
     echo ''
@@ -37,6 +38,7 @@ function show_help {
     echo '           --min [period days] --max [period days]'
     echo '           --list [fits file table index name]'
     echo '           --email [email address]'
+    echo '           --init'
     echo ''
     exit 0
 }
@@ -89,6 +91,9 @@ case $key in
     shift
     EMAIL_ADDRESS="$1"
     ;;
+    --init)
+    INIT_SYSTEM="init"
+    ;;
     *)
     # unknown option
     ;;
@@ -96,37 +101,87 @@ esac
 shift
 done
 
-if [ ! -d /etc/systemd ]; then
-    echo "This daemon only works with systemd"
-    exit 7253
-fi
-
 if [ ! -d $WORKING_DIR ]; then
     adduser --disabled-login --gecos 'WASP' $USERNAME
 fi
 chown -R $USERNAME:$USERNAME $WORKING_DIR
-systemd stop waspd
 
-echo '[Unit]' > /etc/systemd/system/waspd.service
-echo 'Description=WASPd (transit detection daemon)' >> /etc/systemd/system/waspd.service
-echo 'After=syslog.target' >> /etc/systemd/system/waspd.service
-echo 'After=network.target' >> /etc/systemd/system/waspd.service
-echo '' >> /etc/systemd/system/waspd.service
-echo '[Service]' >> /etc/systemd/system/waspd.service
-echo 'Type=simple' >> /etc/systemd/system/waspd.service
-echo "User=$USERNAME" >> /etc/systemd/system/waspd.service
-echo "Group=$USERNAME" >> /etc/systemd/system/waspd.service
-echo "WorkingDirectory=$WORKING_DIR" >> /etc/systemd/system/waspd.service
-if [ $EMAIL_ADDRESS ]; then
-    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --email $EMAIL_ADDRESS --minsamples $MIN_DATA_SAMPLES" >> /etc/systemd/system/waspd.service
-else
-    echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --minsamples $MIN_DATA_SAMPLES" >> /etc/systemd/system/waspd.service
+if [ ! -d /etc/systemd ]; then
+    echo "systemd init system not found"
+    INIT_SYSTEM="init"
 fi
-echo 'Restart=always' >> /etc/systemd/system/waspd.service
-echo "Environment=\"USER=waspd\" \"HOME=$WORKING_DIR\"" >> /etc/systemd/system/waspd.service
-echo '' >> /etc/systemd/system/waspd.service
-echo '[Install]' >> /etc/systemd/system/waspd.service
-echo 'WantedBy=multi-user.target' >> /etc/systemd/system/waspd.service
+
+if [[ $INIT_SYSTEM == "d" ]]; then
+    # systemd daemon
+    systemd stop waspd
+
+    echo '[Unit]' > /etc/systemd/system/waspd.service
+    echo 'Description=WASPd (transit detection daemon)' >> /etc/systemd/system/waspd.service
+    echo 'After=syslog.target' >> /etc/systemd/system/waspd.service
+    echo 'After=network.target' >> /etc/systemd/system/waspd.service
+    echo '' >> /etc/systemd/system/waspd.service
+    echo '[Service]' >> /etc/systemd/system/waspd.service
+    echo 'Type=simple' >> /etc/systemd/system/waspd.service
+    echo "User=$USERNAME" >> /etc/systemd/system/waspd.service
+    echo "Group=$USERNAME" >> /etc/systemd/system/waspd.service
+    echo "WorkingDirectory=$WORKING_DIR" >> /etc/systemd/system/waspd.service
+    if [ $EMAIL_ADDRESS ]; then
+        echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --email $EMAIL_ADDRESS --minsamples $MIN_DATA_SAMPLES" >> /etc/systemd/system/waspd.service
+    else
+        echo "ExecStart=/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --minsamples $MIN_DATA_SAMPLES" >> /etc/systemd/system/waspd.service
+    fi
+    echo 'Restart=always' >> /etc/systemd/system/waspd.service
+    echo "Environment=\"USER=waspd\" \"HOME=$WORKING_DIR\"" >> /etc/systemd/system/waspd.service
+    echo '' >> /etc/systemd/system/waspd.service
+    echo '[Install]' >> /etc/systemd/system/waspd.service
+    echo 'WantedBy=multi-user.target' >> /etc/systemd/system/waspd.service
+else
+    # init daemon
+    service waspd stop
+    echo '#!/bin/bash' >> /etc/init.d/waspd
+    echo '### BEGIN INIT INFO' >> /etc/init.d/waspd
+    echo '# Provides: waspd' >> /etc/init.d/waspd
+    echo '# Required-Start:' >> /etc/init.d/waspd
+    echo '# Required-Stop:' >> /etc/init.d/waspd
+    echo '# Default-Start: 2 3 4 5' >> /etc/init.d/waspd
+    echo '# Default-Stop: 0 1 6' >> /etc/init.d/waspd
+    echo '# Short-Description: Search for exoplanet transits' >> /etc/init.d/waspd
+    echo '# Description: Searches for exoplanet transits within WASP data' >> /etc/init.d/waspd
+    echo '### END INIT INFO' >> /etc/init.d/waspd
+    echo 'RETVAL=0' >> /etc/init.d/waspd
+    echo "USERNAME='$USERNAME'" >> /etc/init.d/waspd
+    echo '' >> /etc/init.d/waspd
+    echo 'start() {' >> /etc/init.d/waspd
+    echo "    echo 'Starting $USERNAME...'" >> /etc/init.d/waspd
+    if [ $EMAIL_ADDRESS ]; then
+        echo "    su --command \"/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --email $EMAIL_ADDRESS --minsamples $MIN_DATA_SAMPLES\" $USERNAME" >> /etc/init.d/waspd
+    else
+        echo "    su --command \"/usr/bin/waspd --min $MIN_PERIOD_DAYS --max $MAX_PERIOD_DAYS --start $START_PERCENT --end $END_PERCENT --list $listname --type $TABLE_TYPE --minsamples $MIN_DATA_SAMPLES\" $USERNAME" >> /etc/init.d/waspd
+    fi
+    echo '}' >> /etc/init.d/waspd
+    echo '' >> /etc/init.d/waspd
+    echo 'stop() {' >> /etc/init.d/waspd
+    echo "    echo 'Stopping $USERNAME...'" >> /etc/init.d/waspd
+    echo '}' >> /etc/init.d/waspd
+    echo '' >> /etc/init.d/waspd
+    echo 'case "$1" in' >> /etc/init.d/waspd
+    echo '    start)' >> /etc/init.d/waspd
+    echo '        start' >> /etc/init.d/waspd
+    echo '        ;;' >> /etc/init.d/waspd
+    echo '    stop)' >> /etc/init.d/waspd
+    echo '        stop' >> /etc/init.d/waspd
+    echo '        ;;' >> /etc/init.d/waspd
+    echo '    restart)' >> /etc/init.d/waspd
+    echo '        stop' >> /etc/init.d/waspd
+    echo '        sleep 3' >> /etc/init.d/waspd
+    echo '        start' >> /etc/init.d/waspd
+    echo '        ;;' >> /etc/init.d/waspd
+    echo '    *)' >> /etc/init.d/waspd
+    echo '    echo "Usage: $0 {start|stop|restart}"' >> /etc/init.d/waspd
+    echo '    RETVAL=1' >> /etc/init.d/waspd
+    echo 'esac' >> /etc/init.d/waspd
+    echo 'exit $RETVAL' >> /etc/init.d/waspd
+fi
 
 # remove any previously remembered line number
 STORED_LINE_NO=$WORKING_DIR/line.txt
@@ -159,9 +214,16 @@ do
 done
 rm *.bat
 
-systemctl enable waspd
-systemctl daemon-reload
-systemctl restart waspd
+if [[ $INIT_SYSTEM == "d" ]]; then
+    systemctl enable waspd
+    systemctl daemon-reload
+    systemctl restart waspd
+else
+    chmod +x /etc/init.d/waspd
+    update-rc.d waspd defaults
+    service waspd start
+fi
+
 if [ ! "$?" = "0" ]; then
     exit 4643
 fi
