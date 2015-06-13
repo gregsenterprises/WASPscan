@@ -66,7 +66,7 @@ Log files will be scanned one by one and if transits are found then plot images 
 
 Scaling up the search
 ---------------------
-It is also possible to install a daemon which will search through light curves and report its results. The daemon currently only runs with a systemd init system (Fedora, Ubuntu 15.04+, Debian 8+).
+It is also possible to install a daemon which will search through light curves and report its results.
 
     sudo startwaspd --archive [bulk data download url]
                     --start [percent] --end [percent]
@@ -79,5 +79,9 @@ The start and end percent values indicate where within the total data set the da
 You can check whether the daemon is running with:
 
     systemctl status waspd
+
+or otherwise just:
+
+    ps aux | grep waspd
 
 Any candidate transits will be saved into the directory */home/wasp/candidates*
