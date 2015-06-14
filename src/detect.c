@@ -21,6 +21,9 @@
 /* length of the light curve used for transit detection */
 #define DETECT_CURVE_LENGTH 256
 
+/* maximum percentage of the light curve which may be missing */
+#define MISSING_THRESHOLD   4
+
 /**
  * @brief Detects the starting and ending indexes of active
  *        data sections within a time series
@@ -222,6 +225,23 @@ float detect_variance(float series[], int series_length, float mean)
 }
 
 /**
+ * @brief returns the number of buckets within a light curve for
+ *        which no data exists
+ * @param density The number of data samples within each bucket
+ * @param The length of the light curve (number of buckets)
+ * @return The number of buckets having zero data samples
+ */
+int missing_data(float density[], int curve_length)
+{
+    int i, missing = 0;
+
+    for (i = 0; i < curve_length; i++) {
+        if (density[i] == 0) missing++;
+    }
+    return missing;
+}
+
+/**
  * @brief Returns an array containing a light curve for the given orbital period_days
  * @param timestamp Array of imaging times
  * @param series Array containing magnitudes
@@ -230,16 +250,21 @@ float detect_variance(float series[], int series_length, float mean)
  * @param curve Returned light curve Array
  * @param density Density of samples
  * @param curve_length The number of buckets within the curve
+ * @return zero on success
  */
-void light_curve(float timestamp[],
-                 float series[], int series_length,
-                 float period_days,
-                 float curve[], float density[], int curve_length)
+int light_curve(float timestamp[],
+                float series[], int series_length,
+                float period_days,
+                float curve[], float density[], int curve_length)
 {
     float mean, variance;
 
     light_curve_base(timestamp, series, series_length,
                      period_days, curve, density, curve_length);
+
+    if (missing_data(density, curve_length)*100/curve_length >
+        MISSING_THRESHOLD)
+        return -1;
 
     mean = detect_mean(series, series_length);
     variance = detect_variance(series, series_length, mean);
@@ -247,6 +272,7 @@ void light_curve(float timestamp[],
     light_curve_resample(mean - variance, mean + variance,
                          timestamp, series, series_length,
                          period_days, curve, curve_length);
+    return 0;
 }
 
 /**
@@ -339,9 +365,11 @@ float detect_orbital_period(float timestamp[],
         float density[DETECT_CURVE_LENGTH];
         float orbital_period_days = min_period_days + (step*increment_days);
 
-        light_curve(timestamp, series, series_length,
-                    orbital_period_days,
-                    curve, density, DETECT_CURVE_LENGTH);
+        if (light_curve(timestamp, series, series_length,
+                        orbital_period_days,
+                        curve, density, DETECT_CURVE_LENGTH) != 0)
+            continue;
+
         float variance =
             light_curve_variance(orbital_period_days,
                                  timestamp, series,

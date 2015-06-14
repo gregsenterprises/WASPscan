@@ -79,10 +79,10 @@ int gnuplot_light_curve_distribution(char * title,
 void fft1D(float series[], int series_length, float freq[]);
 int detect_endpoints(float timestamp[], int series_length,
                      int endpoints[]);
-void light_curve(float timestamp[],
-                 float series[], int series_length,
-                 float period_days,
-                 float curve[], float density[], int curve_length);
+int light_curve(float timestamp[],
+                float series[], int series_length,
+                float period_days,
+                float curve[], float density[], int curve_length);
 void scan_name(char * filename, char * result);
 float detect_orbital_period(float timestamp[],
                             float series[], int series_length,
